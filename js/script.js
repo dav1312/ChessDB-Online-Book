@@ -67,7 +67,7 @@ var init = function() {
     onSnapEnd: onSnapEnd
   };
 
-  function mateScores (score) {
+  function displayScore (score) {
     if (score > 20000) return `M${30000 - score}`;
     if (score < -20000) return `-M${30000 + score}`;
     return score > 0 ? `+${(score / 100).toFixed(2)}` : (score / 100).toFixed(2)
@@ -109,14 +109,14 @@ var init = function() {
                   if (game.turn() !== game1.turn()) {
                     score = -1*score;
                   }
-                  var leafNodeInfo = `Eval of <b>${json[numPv-1].san}</b> after ${1 + depth} plies: <b>${mateScores(score)}</b>`;
+                  var leafNodeInfo = `Eval of <b>${json[numPv-1].san}</b> after ${1 + depth} plies: <b>${displayScore(score)}</b>`;
                   document.getElementById(idStr).innerHTML = leafNodeInfo;
                 }
               });
             }
           }
           else {
-            document.getElementById(idStr).innerHTML = `Eval of <b>${json[numPv-1].san}</b> after ${1} plies: <b>${mateScores(json[numPv-1].score)}</b>`;
+            document.getElementById(idStr).innerHTML = `Eval of <b>${json[numPv-1].san}</b> after ${1} plies: <b>${displayScore(json[numPv-1].score)}</b>`;
           }
         });
       }
@@ -165,7 +165,7 @@ var init = function() {
           var tr = `
             <tr>
               <td>${sanMove}</td>
-              <td>${mateScores(score)}</td>
+              <td>${displayScore(score)}</td>
             </tr>
           `;
           tbody.innerHTML += tr;
@@ -199,7 +199,7 @@ var init = function() {
       else {
         var sanPv = "" + data.pvSAN;
         var pv = sanPv.replace(/,/g, ' ');
-        var line = `Eval: ${mateScores(data.score)} Depth: ${data.depth}<br>${pv}`;
+        var line = `Eval: ${displayScore(data.score)} Depth: ${data.depth}<br>${pv}`;
         document.getElementById('top-move-pv').innerHTML = line;
       }
     });

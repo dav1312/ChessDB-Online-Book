@@ -1,4 +1,5 @@
-const fenEl = document.getElementById("fen"),
+const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  fenEl = document.getElementById("fen"),
   pgnEl = document.getElementById("pgn"),
 
   inputFen = document.getElementById("inputFenBox"),
@@ -272,10 +273,22 @@ const updateStatus = () => {
   fenEl.textContent = game.fen();
   pgnEl.innerHTML = game.pgn({ max_width: 79, newline_char: "<br />" });
 
-  if (countPieces(game.fen()) >= 10 && countPieces(game.fen(), true) >= 4) {
-    document.getElementById("requestBtn").disabled = false;
+  if (game.fen() === startpos) {
+    startBtn.disabled = true;
   } else {
-    document.getElementById("requestBtn").disabled = true;
+    startBtn.disabled = false;
+  }
+
+  if (game.history().length == 0) {
+    undoBtn.disabled = true;
+  } else {
+    undoBtn.disabled = false;
+  }
+
+  if (countPieces(game.fen()) >= 10 && countPieces(game.fen(), true) >= 4) {
+    requestBtn.disabled = false;
+  } else {
+    requestBtn.disabled = true;
   }
 }; // End of updateStatus
 
@@ -289,7 +302,7 @@ setupFenBtn.addEventListener("click", () => {
   if (game.load(input)) {
     setPgnGameHeader();
     board.position(input);
-    document.getElementById("movesList").textContent = "";
+    movesListTable.textContent = "";
 
     removeHighlights();
     updateStatus();
@@ -305,7 +318,7 @@ setupPgnBtn.addEventListener("click", () => {
   if (game.load_pgn(input)) {
     setPgnGameHeader();
     board.position(game.fen());
-    document.getElementById("movesList").textContent = "";
+    movesListTable.textContent = "";
 
     // Remove square highlight of last move.
     removeHighlights();
@@ -329,7 +342,6 @@ flipBtn.addEventListener("click", () => {
 
 startBtn.addEventListener("click", () => {
   board.start(false);
-  const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   board.position(startpos);
   game.load(startpos);
   inputFen.value = "";

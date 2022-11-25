@@ -13,12 +13,12 @@ const apiUrl = "https://www.chessdb.cn/cdb.php";
 setPgnGameHeader();
 
 function removeHighlights() {
-  $board.find('.' + squareClass).removeClass('highlight-sq');
+  $board.find(`.${squareClass}`).removeClass('highlight-sq');
 }
 
 function addHighlights(source, target) {
-  $board.find('.square-' + source).addClass('highlight-sq');
-  $board.find('.square-' + target).addClass('highlight-sq');
+  $board.find(`.square-${source}`).addClass('highlight-sq');
+  $board.find(`.square-${target}`).addClass('highlight-sq');
 }
 
 // Disable picking of pieces if the game is over. Also disable picking
@@ -44,13 +44,13 @@ var onDrop = function(source, target) {
 
   // Hight the last move made
   removeHighlights();
-  addHighlights (source, target);
+  addHighlights(source, target);
 
   updateStatus();
 };
 
-function onMoveEnd () {
-  $board.find('.square-' + squareToHighlight).addClass('highlight-sq');
+function onMoveEnd() {
+  $board.find(`.square-${squareToHighlight}`).addClass('highlight-sq');
 }
 
 // update the board position after the piece snap
@@ -68,19 +68,19 @@ var cfg = {
   onSnapEnd: onSnapEnd
 };
 
-function doMove (move) {
+function doMove(move) {
   game.move(move);
   board.position(game.fen());
   updateStatus();
 }
 
-function requestQueue () {
+function requestQueue() {
   $.get(`${apiUrl}?action=queue&board=${game.fen()}`);
   console.log("FEN requested");
   updateStatus();
 };
 
-function displayScore (score) {
+function displayScore(score) {
   if (game.turn() === "b") score *= -1;
   if (score > 20000) return `White wins in ${30000 - score}`;
   if (score < -20000) return `Black wins in ${30000 + score}`;
@@ -90,7 +90,7 @@ function displayScore (score) {
 // Query leaf score of top X move.
 // Get the top move, push it, and query its PV. Walk the PV except the
 // last move and query its PV again to get its leaf node score.
-function queryLeaf (data, numPv) {
+function queryLeaf(data, numPv) {
   var idStr = `advance-pv${numPv}`;
   var label = `Pv ${numPv}: `;
   document.getElementById(idStr).innerHTML = label;
@@ -269,13 +269,7 @@ $('#inputEpdBtn').on('click', function() {
     var s = document.getElementById("tbody");
     s.innerHTML = '';
 
-    // Hightlight a1 square if turn is black otherwise a8
     removeHighlights();
-    if (game.turn() === 'b')
-      addHighlights('a1', 'a1');
-    else
-      addHighlights('a8', 'a8');
-
     updateStatus();
   }
   else {

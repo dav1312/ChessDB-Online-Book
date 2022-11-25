@@ -1,21 +1,17 @@
 const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   fenEl = document.getElementById("fen"),
   pgnEl = document.getElementById("pgn"),
-
   inputFen = document.getElementById("inputFenBox"),
   inputPgn = document.getElementById("inputPgnBox"),
-
   setupFenBtn = document.getElementById("setupFenBtn"),
   setupPgnBtn = document.getElementById("setupPgnBtn"),
-
   startBtn = document.getElementById("startBtn"),
   undoBtn = document.getElementById("undoBtn"),
   flipBtn = document.getElementById("flipBtn"),
   requestBtn = document.getElementById("requestBtn"),
   refreshBtn = document.getElementById("refreshBtn"),
-
   topMovePv = document.getElementById("topMovePv"),
-  movesListTable  = document.getElementById("movesList"),
+  movesListTable = document.getElementById("movesList"),
   $board = document.getElementById("board"),
   squareClass = "square-55d63",
   apiUrl = "https://www.chessdb.cn/cdb.php";
@@ -24,13 +20,15 @@ let board,
   game = new Chess();
 
 const removeHighlights = () => {
-  $board.querySelectorAll('.highlight-sq').forEach(square => square.classList.remove("highlight-sq"));
-}
+  $board
+    .querySelectorAll(".highlight-sq")
+    .forEach((square) => square.classList.remove("highlight-sq"));
+};
 
 const addHighlights = (source, target) => {
   $board.querySelector(`.square-${source}`).classList.add("highlight-sq");
   $board.querySelector(`.square-${target}`).classList.add("highlight-sq");
-}
+};
 
 // Disable picking of pieces if the game is over. Also disable picking
 // of pieces for the side not to move.
@@ -91,20 +89,20 @@ const doMove = (move) => {
   }
 
   updateStatus();
-}
+};
 
 const requestQueue = () => {
   $.get(`${apiUrl}?action=queue&board=${game.fen()}`);
   console.log("FEN requested");
   updateStatus();
-}
+};
 
 const displayScore = (score) => {
   if (game.turn() === "b") score *= -1;
   if (score > 20000) return `White wins in ${30000 - score}`;
   if (score < -20000) return `Black wins in ${30000 + score}`;
   return score > 0 ? `+${(score / 100).toFixed(2)}` : (score / 100).toFixed(2);
-}
+};
 
 const countPieces = (fen, attackers = false) => {
   let board = fen.toLowerCase().split(" ")[0].split("");
@@ -114,7 +112,7 @@ const countPieces = (fen, attackers = false) => {
     board.length -
     board.filter((fenPiece) => !pieces.includes(fenPiece)).length;
   return count;
-}
+};
 
 // Query leaf score of top X move.
 // Get the top move, push it, and query its PV. Walk the PV except the
@@ -168,7 +166,7 @@ const queryLeaf = (data, numPv) => {
       });
     }
   }
-}
+};
 
 const probe_book = () => {
   const baseUrl = `${apiUrl}?action=queryall&json=1&board=`;
@@ -273,23 +271,17 @@ const updateStatus = () => {
   fenEl.textContent = game.fen();
   pgnEl.innerHTML = game.pgn({ max_width: 79, newline_char: "<br />" });
 
-  if (game.fen() === startpos) {
-    startBtn.disabled = true;
-  } else {
-    startBtn.disabled = false;
-  }
+  game.fen() === startpos
+    ? (startBtn.disabled = true)
+    : (startBtn.disabled = false);
 
-  if (game.history().length == 0) {
-    undoBtn.disabled = true;
-  } else {
-    undoBtn.disabled = false;
-  }
+  game.history().length == 0
+    ? (undoBtn.disabled = true)
+    : (undoBtn.disabled = false);
 
-  if (countPieces(game.fen()) >= 10 && countPieces(game.fen(), true) >= 4) {
-    requestBtn.disabled = false;
-  } else {
-    requestBtn.disabled = true;
-  }
+  countPieces(game.fen()) >= 10 && countPieces(game.fen(), true) >= 4
+    ? (requestBtn.disabled = false)
+    : (requestBtn.disabled = true);
 }; // End of updateStatus
 
 setupFenBtn.addEventListener("click", () => {
@@ -396,7 +388,7 @@ const setPgnGameHeader = () => {
   game.header("Round", "-");
   game.header("White", "?");
   game.header("Black", "?");
-}
+};
 
 setPgnGameHeader();
 
@@ -415,7 +407,7 @@ const download = (filename, text) => {
   element.click();
 
   document.body.removeChild(element);
-}
+};
 
 // Start file download.
 savePGNBtn.addEventListener("click", () => {

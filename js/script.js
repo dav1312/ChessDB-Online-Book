@@ -1,5 +1,3 @@
-document.getElementById("inputFenBox").value = "";
-
 var board,
   game = new Chess(),
   fenEl = $("#fen");
@@ -99,6 +97,17 @@ function displayScore(score) {
   if (score > 20000) return `White wins in ${30000 - score}`;
   if (score < -20000) return `Black wins in ${30000 + score}`;
   return score > 0 ? `+${(score / 100).toFixed(2)}` : (score / 100).toFixed(2);
+}
+
+function countPieces(fen, attackers = false) {
+  let board = fen.toLowerCase().split(" ")[0].split("");
+  pieces = "qrbn";
+  if (!attackers) pieces += "kp";
+  const count =
+    board.length -
+    board.filter((fenPiece) => !pieces.includes(fenPiece)).length;
+  console.log(count);
+  return count;
 }
 
 // Query leaf score of top X move.
@@ -260,6 +269,12 @@ var updateStatus = function () {
   // Update the fen html PGN boxes
   fenEl.html(game.fen());
   pgnEl.html(game.pgn({ max_width: 79, newline_char: "<br />" }));
+
+  if (countPieces(game.fen()) >= 10 && countPieces(game.fen(), true) >= 4) {
+    document.getElementById("requestBtn").disabled = false;
+  } else {
+    document.getElementById("requestBtn").disabled = true;
+  }
 }; // End of updateStatus
 
 $("#setupFenBtn").on("click", function () {

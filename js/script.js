@@ -161,21 +161,11 @@ var init = function() {
         for (var i = 0; i < json.length; i++) {
           var sanMove = json[i].san;
           var score = json[i].score;
-          var winrate = json[i].winrate;
-
-          // 2019-08-03: ChessDB does not return winrate (by design)
-          // when score is a mate. So we will just calculate winrate
-          // by the formula that is used by chessDB.
-          if (typeof(winrate) === "undefined") {
-            winrate = 100 * 1/(1 + (Math.exp(-score/330)));
-            winrate = winrate.toFixed(2);
-          }
 
           var tr = `
             <tr>
               <td>${sanMove}</td>
               <td>${mateScores(score)}</td>
-              <td>${winrate}</td>
             </tr>
           `;
           tbody.innerHTML += tr;

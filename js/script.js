@@ -237,9 +237,9 @@ const probe_book = () => {
         topMovePv.textContent = "Game over!";
       }
     } else {
-      var sanPv = "" + data.pvSAN;
-      var pv = sanPv.replace(/,/g, " ");
-      var line = `Eval: ${displayScore(data.score)} Depth: ${
+      const sanPv = "" + data.pvSAN;
+      const pv = sanPv.replace(/,/g, " ");
+      const line = `Eval: ${displayScore(data.score)} Depth: ${
         data.depth
       }<br>${pv}`;
       topMovePv.innerHTML = line;
@@ -394,7 +394,7 @@ setPgnGameHeader();
 
 // Download game in pgn format.
 const download = (filename, text) => {
-  var element = document.createElement("a");
+  const element = document.createElement("a");
   element.setAttribute(
     "href",
     "data:text/plain;charset=utf-8," + encodeURIComponent(text)

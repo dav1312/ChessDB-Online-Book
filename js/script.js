@@ -328,6 +328,8 @@ $('#undoBtn').on('click', function() {
 
 $('#requestBtn').on('click', requestQueue);
 
+$('#reloadBtn').on('click', updateStatus);
+
 function setPgnGameHeader(){
   // Get Date for Date game header tag.
   var today = new Date();

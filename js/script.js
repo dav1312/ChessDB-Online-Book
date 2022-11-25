@@ -328,7 +328,7 @@ $('#undoBtn').on('click', function() {
 
 $('#requestBtn').on('click', requestQueue);
 
-$('#reloadBtn').on('click', updateStatus);
+$('#refreshBtn').on('click', updateStatus);
 
 function setPgnGameHeader(){
   // Get Date for Date game header tag.

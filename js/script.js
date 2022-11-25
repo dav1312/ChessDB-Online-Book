@@ -1,4 +1,4 @@
-document.getElementById("fenbox").value = "";
+document.getElementById("inputFenBox").value = "";
 
 var board,
   game = new Chess(),
@@ -263,29 +263,55 @@ var updateStatus = function () {
 }; // End of updateStatus
 
 $("#clearPosBoxBtn").on("click", function () {
-  document.getElementById("fenbox").value = "";
+  document.getElementById("inputFenBox").value = "";
 });
 
-$("#inputEpdBtn").on("click", function () {
-  var pos = document.getElementById("fenbox").value;
+$("#setupFenBtn").on("click", function () {
+  var input = document.getElementById("inputFenBox").value;
 
   // Remove empty space at left/right of fen/epd string. Position copied
   // from Arena 3.5 chess GUI adds empty char at right of fen.
-  pos = pos.trim();
-  document.getElementById("fenbox").value = pos;
+  input = input.trim();
+  document.getElementById("inputFenBox").value = input;
 
-  var ok = game.load(pos);
+  var ok = game.load(input);
   if (ok) {
     setPgnGameHeader();
-    board.position(pos);
-    var s = document.getElementById("tbody");
-    s.innerHTML = "";
+    board.position(input);
+    document.getElementById("tbody").textContent = "";
 
     removeHighlights();
     updateStatus();
   } else {
-    console.log(`FEN loading is not OK! FEN: ${pos}`);
-    alert("The fen/epd that you set up is illegal!");
+    console.warn(`Invalid FEN\n${input}`);
+    alert("Invalid FEN");
+  }
+});
+
+$("#setupPgnBtn").on("click", function () {
+  var input = document.getElementById("inputPgnBox").value;
+  console.log(input);
+
+  var ok = game.load_pgn(input);
+  if (ok) {
+    setPgnGameHeader();
+    board.position(game.fen());
+    document.getElementById("tbody").textContent = "";
+
+    // Remove square highlight of last move.
+    removeHighlights();
+
+    // Restore square highlight of last last move.
+    moveHistory = game.history({ verbose: true });
+    console.log(moveHistory);
+    if (moveHistory.length >= 1) {
+      lastMove = moveHistory[moveHistory.length - 1];
+      addHighlights(lastMove.from, lastMove.to);
+    }
+    updateStatus();
+  } else {
+    console.warn(`Invalid PGN\n${input}`);
+    alert("Invalid PGN");
   }
 });
 
@@ -298,7 +324,7 @@ $("#startBtn").on("click", function () {
   var startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   board.position(startpos);
   game.load(startpos);
-  document.getElementById("fenbox").value = "";
+  document.getElementById("inputFenBox").value = "";
   removeHighlights();
   setPgnGameHeader();
   updateStatus();

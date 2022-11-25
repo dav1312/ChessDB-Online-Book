@@ -71,6 +71,18 @@ var cfg = {
 function doMove(move) {
   game.move(move);
   board.position(game.fen());
+
+  // Remove square highlight of last move.
+  removeHighlights();
+  
+  // Restore square highlight of last last move.
+  moveHistory = game.history({ verbose: true });
+  console.log(moveHistory);
+  if (moveHistory.length >= 1) {
+    lastMove = moveHistory[moveHistory.length - 1];
+    addHighlights(lastMove.from, lastMove.to);
+  }
+
   updateStatus();
 }
 

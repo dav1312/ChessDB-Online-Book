@@ -9,607 +9,129 @@
     <meta name="author" content="">
 
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+      rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+      crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+      crossorigin="anonymous"></script>
 
     <!-- chessboardjs -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+      integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2"
+      crossorigin="anonymous"></script>
     <link rel="stylesheet" href="css/chessboard-1.0.0.css" />
-
-    <style type="text/css">
-      .highlight-sq {
-        box-shadow: inset 0 0 3px 3px yellow;
-      }
-    </style>
+    <script src="js/chessboard-1.0.0.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"
+      integrity="sha512-xRllwz2gdZciIB+AkEbeq+gVhX8VB8XsfqeFbUh+SzHlN96dEduwtTuVuc2u9EROlmW9+yhRlxjif66ORpsgVA==" crossorigin="anonymous"
+      referrerpolicy="no-referrer" defer></script>
+    <script src="js/script.js" defer></script>
   </head>
 
   <body>
-    <nav class="navbar navbar-expand-md bg-dark navbar-dark">
-      <a class="navbar-brand" href="#">ChessDB Online Chess Opening Book</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="collapsibleNavbar">
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link" href="https://github.com/noobpwnftw/chessdb" target="_blank">ChessDB</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="http://talkchess.com/forum3/index.php" target="_blank">CCC</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="https://github.com/fsmosca/ChessDB-Online-Book" target="_blank">Github</a>
-          </li>
-        </ul>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">ChessDB Online Chess Opening Book</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar2" aria-controls="offcanvasNavbar2">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasNavbar2" aria-labelledby="offcanvasNavbar2Label">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasNavbar2Label">Offcanvas</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+              <li class="nav-item">
+                <a class="nav-link" href="https://github.com/noobpwnftw/chessdb" target="_blank">ChessDB</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="https://github.com/dav1312/ChessDB-Online-Book" target="_blank">Github</a>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
     </nav>
     <br>
 
-    <div class="container-fluid">
+    <div class="container">
       <div class="row">
-        <!-- Col 1 -->
-        <div class="col-lg-1"></div>
-
-        <!-- Col 2 -->
-        <div class="col-lg-4">
-          <center>
+        <div class="col-md-6 col-lg-4 mb-3">
+          <div class="text-center">
             <h5>ChessDB Opening Book</h5>
-            <div id="board" style="width: 400px"></div>
+            <div id="board" class="m-auto w-100"></div>
 
-            <input type="button" id="startBtn" value="Start" />
-            <input type="button" id="undoBtn" value="Undo" />
-            <input type="button" id="flipBtn" value="Flip" />
-            <input type="button" id="inputEpdBtn" value="Setup" />
-            <input type="text" placeholder="input your fen or epd" id='fenbox' style="width: 50px" />
-            <input type="button" id="clearPosBoxBtn" value="Clear" />
-            <input type="button" id="savePGNBtn" value="Save" />
+            <div class="mt-2">
+              <div class="input-group input-group-sm mb-3">
+                <button class="btn btn-sm btn-outline-secondary" type="button" id="inputEpdBtn">Setup</button>
+                <input type="text" class="form-control" placeholder="FEN or EPD" id='fenbox'/>
+              </div>
 
-            <div id="fen" style="font-size:10px;"></div>
-          </center>
+              <input class="btn btn-sm btn-outline-secondary mb-3" type="button" id="startBtn" value="Startpos" />
+              <input class="btn btn-sm btn-outline-secondary mb-3" type="button" id="undoBtn" value="Undo" />
+              <input class="btn btn-sm btn-outline-secondary mb-3" type="button" id="flipBtn" value="Flip" />
+              <input class="btn btn-sm btn-outline-secondary mb-3" type="button" id="clearPosBoxBtn" value="Clear" />
+              <input class="btn btn-sm btn-outline-secondary mb-3" type="button" id="savePGNBtn" value="Save PGN" />
+              <small id="fen" class="text-secondary"></small>
+            </div>
+          </div>
         </div>
 
-        <!-- Col 3 -->
-        <div class="col-lg-3">
-          <h5>PV of top move</h5>
-          <div style="height:70px; overflow-y:scroll;" id="top-move-pv"></div><br>
+        <hr class="d-block d-md-none">
 
-          <h5>Top 4 Leaf node scores</h5>
-          <div><span id="advance-pv1">pv1:</span></div>
-          <div><span id="advance-pv2">pv2:</span></div>
-          <div><span id="advance-pv3">pv3:</span></div>
-          <div><span id="advance-pv4">pv4:</span></div><br>
+        <div class="col-md-6 col-lg-4 mb-3">
+          <div class="mb-3">
+            <h5>Top 4 Leaf Node Scores</h5>
+            <div>
+              <span id="advance-pv1"></span>
+            </div>
+            <div>
+              <span id="advance-pv2"></span>
+            </div>
+            <div>
+              <span id="advance-pv3"></span>
+            </div>
+            <div>
+              <span id="advance-pv4"></span>
+            </div>
+          </div>
 
-          <h5>Book probe results</h5>
-          <div style="height:118px; overflow-y:scroll;">
-            <table width=100% border="1" cellpadding="0">
+          <hr>
+
+          <div>
+            <h5>PV of Top Move</h5>
+            <div class="overflow-auto" id="top-move-pv"></div>
+          </div>
+        </div>
+
+        <hr class="d-block d-lg-none">
+
+        <div class="col-lg-4 mb-3">
+          <h5>Book Probe Results</h5>
+          <div style="height:50vh; min-height: 100px;" class="overflow-auto">
+            <table class="table table-sm table-striped text-center">
+              <thead>
+                <tr>
+                  <th>Move</th>
+                  <th>Score</th>
+                  <th>Winrate</th>
+                </tr>
+              </thead>
               <tbody id="tbody"></tbody>
             </table>
           </div>
         </div>
 
-        <!-- Col 4 -->
-        <div class="col-lg-3">
+        <hr>
+
+        <div class="col-12 mb-3">
           <h5>PGN</h5>
-          <div style="height:400px; overflow-y:scroll; overflow-wrap:break-word;" id="pgn"></div>
+          <pre><code id="pgn"></code></pre>
         </div>
-
-        <!-- Col 5 -->
-        <div class="col-lg-1"></div>
-
       </div>
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="js/chessboard-1.0.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
-
-    <script>
-      var init = function() {
-        document.getElementById('fenbox').value = ''
-
-        var board,
-        game = new Chess(),
-        fenEl = $('#fen');
-        pgnEl = $('#pgn');
-        var $board = $('#board');
-        var squareToHighlight = null;
-        var squareClass = 'square-55d63';
-
-        setPgnGameHeader();
-
-        function removeHighlights() {
-          $board.find('.' + squareClass).removeClass('highlight-sq');
-        }
-
-        function addHighlights(source, target) {
-          $board.find('.square-' + source).addClass('highlight-sq');
-          $board.find('.square-' + target).addClass('highlight-sq');
-        }
-
-        // Disable picking of pieces if the game is over. Also disable picking
-        // of pieces for the side not to move.
-        var onDragStart = function(source, piece, position, orientation) {
-          if (game.game_over() === true ||
-              (game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-              (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
-            return false;
-          }
-        };
-
-        var onDrop = function(source, target) {
-          // see if the move is legal
-          var move = game.move({
-            from: source,
-            to: target,
-            promotion: 'q' // NOTE: always promote to a queen for example simplicity
-          });
-
-          // illegal move
-          if (move === null) return 'snapback';
-
-          // Hight the last move made
-          removeHighlights();
-          addHighlights (source, target);
-
-          updateStatus();
-        };
-
-        function onMoveEnd () {
-          $board.find('.square-' + squareToHighlight).addClass('highlight-sq');
-        }
-
-        // update the board position after the piece snap
-        // for castling, en passant, pawn promotion
-        var onSnapEnd = function() {
-          board.position(game.fen());
-        };
-
-        var cfg = {
-          draggable: true,
-          position: 'start',
-          onDragStart: onDragStart,
-          onDrop: onDrop,
-          onMoveEnd: onMoveEnd,
-          onSnapEnd: onSnapEnd
-        };
-
-        var probe_book = function() {
-          var baseUrl = 'https://www.chessdb.cn/cdb.php?action=queryall&json=1&board='
-          var pvUrl = 'https://www.chessdb.cn/cdb.php?action=querypv&json=1&board='
-
-          // Get the fen from current board position
-          var userfen = game.fen();
-          var url = baseUrl + userfen;
-          var pvUrlGet = pvUrl + userfen;
-
-          // We will not make request if game is over.
-          if (game.game_over()) {
-            var msg = "Game over!";
-            console.log(msg);
-            document.getElementById('top-move-pv').innerHTML = msg;
-            for (var i = 0; i < 4; i++) {
-              document.getElementById("advance-pv" + (i+1)).innerHTML = "Pv" + (i+1) + ": " + msg;
-            }
-            $("#tbody tr").remove();
-            return;
-          }
-
-          // (1) Request query all
-          $.get(url, function(data, status) {
-            if (typeof(data.moves) === 'undefined') {
-              $("#tbody tr").remove();
-            }
-            else {
-              var json = data.moves;
-
-              // Create table for book probing results
-              // Clear table first
-              $("#tbody tr").remove();
-
-              var tbody = document.getElementById('tbody');
-              const moveH = "Move";
-              const scoreH = "Score";
-              const winrateH = "Winrate";
-
-              for (var i = 0; i < json.length; i++) {
-                var sanMove = json[i].san;
-                var score = json[i].score;
-                var winrate = json[i].winrate;
-
-                // 2019-08-03: ChessDB does not return winrate (by design)
-                // when score is a mate. So we will just calculate winrate
-                // by the formula that is used by chessDB.
-                if (typeof(winrate) === "undefined") {
-                  winrate = 100 * 1/(1 + (Math.exp(-score/330)));
-                  winrate = winrate.toFixed(2);
-                }
-
-                // Add table header
-                if (i == 0) {
-                  var tr = "<tr>";
-                  tr = "<td align='center'>" + moveH + "</td>" + "<td align='center'>" + scoreH + "</td>" + "<td align='center'>" + winrateH + "</td></tr>";
-                  tbody.innerHTML += tr;
-                }
-
-                var tr = "<tr>";
-                tr += "<td align='center'>" + sanMove + "</td>" + "<td align='center'>" + score + "</td>" + "<td align='center'>" + winrate + "</td></tr>";
-                tbody.innerHTML += tr;
-              }
-            }
-          });
-
-          // Query leaf score of top 1 move.
-          // Get the top move, push it, and query its PV. Walk the PV except the
-          // last move and query its PV again to get its leaf node score.
-          $.get(url, function(data, status) {
-            var numPv = 1;
-            var idStr = "advance-pv" + numPv;
-            var label = "Pv" + numPv + ": ";
-            document.getElementById(idStr).innerHTML = label;
-            if (typeof(data.moves) === 'undefined') {
-              console.log('Query all, there is no book move!');
-            }
-            else {
-              var json = data.moves;
-              for (var j = numPv-1; j < Math.min(numPv, json.length); j++) {
-                var topSanMove = json[j].san;
-                var topGame = new Chess(game.fen());
-                topGame.move(topSanMove);
-                var topFen = topGame.fen();
-
-                // Query the top pv, walk the pv and get its leaf score.
-                var topUrl = 'https://www.chessdb.cn/cdb.php?action=querypv&json=1&board=' + topFen;
-                $.get(topUrl, function(topData, topStatus) {
-                  if (topStatus == 'success' && topData.status == 'ok'){
-                    var game1 = new Chess(topGame.fen());
-                    var depth = topData.depth - 1;
-                    if (depth >= 0) {
-                      for (var i = 0; i < depth; i++) {
-                          game1.move(topData.pvSAN[i]);
-                      }
-                      var leafFen = game1.fen();
-                      var url1 = 'https://www.chessdb.cn/cdb.php?action=querypv&json=1&board=' + leafFen;
-                      $.get(url1, function(data1, status1) {
-                        if (status1 == 'success' && data1.status == 'ok'){
-                          score = data1.score;
-                          if (game.turn() !== game1.turn()) {
-                            score = -1*score;
-                          }
-                          var leafNodeInfo = "Score of " + "<b>"+json[numPv-1].san+"</b>" + " after " + (1+depth) + " plies: " + "<b>"+score+"</b>";
-                          document.getElementById(idStr).innerHTML = leafNodeInfo;
-                        }
-                      });
-                    }
-                  }
-                  else {
-                    document.getElementById(idStr).innerHTML = "Score of " + "<b>"+json[numPv-1].san+"</b>" + " after " + (1) + " plies: " + "<b>"+json[numPv-1].score+"</b>";
-                  }
-                });
-              }
-            }
-          });
-
-          // Query leaf score of top 2 move.
-          $.get(url, function(data, status) {
-            var numPv = 2;
-            var idStr = "advance-pv" + numPv;
-            var label = "Pv" + numPv + ": ";
-            document.getElementById(idStr).innerHTML = label;
-            if (typeof(data.moves) === 'undefined') {
-              console.log('Query all, there is no book move!');
-            }
-            else {
-              var json = data.moves;
-              for (var j = numPv-1; j < Math.min(numPv, json.length); j++) {
-                var topSanMove = json[j].san;
-                var topGame = new Chess(game.fen());
-                topGame.move(topSanMove);
-                var topFen = topGame.fen();
-
-                // Query the top pv, walk the pv and get its leaf score.
-                var topUrl = 'https://www.chessdb.cn/cdb.php?action=querypv&json=1&board=' + topFen;
-                $.get(topUrl, function(topData, topStatus) {
-                  if (topStatus == 'success' && topData.status == 'ok'){
-                    var game1 = new Chess(topGame.fen());
-                    var depth = topData.depth - 1;
-                    if (depth >= 0) {
-                      for (var i = 0; i < depth; i++) {
-                          game1.move(topData.pvSAN[i]);
-                      }
-                      var leafFen = game1.fen();
-                      var url1 = 'https://www.chessdb.cn/cdb.php?action=querypv&json=1&board=' + leafFen;
-                      $.get(url1, function(data1, status1) {
-                        if (status1 == 'success' && data1.status == 'ok'){
-                          score = data1.score;
-                          if (game.turn() !== game1.turn()) {
-                            score = -1*score;
-                          }
-                          var leafNodeInfo = "Score of " + "<b>"+json[numPv-1].san+"</b>" + " after " + (1+depth) + " plies: " + "<b>"+score+"</b>";
-                          document.getElementById(idStr).innerHTML = leafNodeInfo;
-                        }
-                      });
-                    }
-                  }
-                  else {
-                    document.getElementById(idStr).innerHTML = "Score of " + "<b>"+json[numPv-1].san+"</b>" + " after " + (1) + " plies: " + "<b>"+json[numPv-1].score+"</b>";
-                  }
-                });
-              }
-            }
-          });
-
-          // Query leaf score of top 3 move.
-          $.get(url, function(data, status) {
-            var numPv = 3;
-            var idStr = "advance-pv" + numPv;
-            var label = "Pv" + numPv + ": ";
-            document.getElementById(idStr).innerHTML = label;
-            if (typeof(data.moves) === 'undefined') {
-              console.log('Query all, there is no book move!');
-            }
-            else {
-              var json = data.moves;
-              for (var j = 2; j < Math.min(3, json.length); j++) {
-                var topSanMove = json[j].san;
-                var topGame = new Chess(game.fen());
-                topGame.move(topSanMove);
-                var topFen = topGame.fen();
-
-                // Query the top pv, walk the pv and get its leaf score.
-                var topUrl = 'https://www.chessdb.cn/cdb.php?action=querypv&json=1&board=' + topFen;
-                $.get(topUrl, function(topData, topStatus) {
-                  if (topStatus == 'success' && topData.status == 'ok'){
-                    var game1 = new Chess(topGame.fen());
-                    var depth = topData.depth - 1;
-                    if (depth >= 0) {
-                      for (var i = 0; i < depth; i++) {
-                          game1.move(topData.pvSAN[i]);
-                      }
-                      var leafFen = game1.fen();
-                      var url1 = 'https://www.chessdb.cn/cdb.php?action=querypv&json=1&board=' + leafFen;
-                      $.get(url1, function(data1, status1) {
-                        if (status1 == 'success' && data1.status == 'ok'){
-                          score = data1.score;
-                          if (game.turn() !== game1.turn()) {
-                            score = -1*score;
-                          }
-                          var leafNodeInfo = "Score of " + "<b>"+json[numPv-1].san+"</b>" + " after " + (1+depth) + " plies: " + "<b>"+score+"</b>";
-                          document.getElementById(idStr).innerHTML = leafNodeInfo;
-                        }
-                      });
-                    }
-                  }
-                  else {
-                    document.getElementById(idStr).innerHTML = "Score of " + "<b>"+json[numPv-1].san+"</b>" + " after " + (1) + " plies: " + "<b>"+json[numPv-1].score+"</b>";
-                  }
-                });
-              }
-            }
-          });
-
-          // Query leaf score of top 4 move.
-          $.get(url, function(data, status) {
-            var numPv = 4;
-            var idStr = "advance-pv" + numPv;
-            var label = "Pv" + numPv + ": ";
-            document.getElementById(idStr).innerHTML = label;
-            if (typeof(data.moves) === 'undefined') {
-              console.log('Query all, there is no book move!');
-            }
-            else {
-              var json = data.moves;
-              for (var j = 3; j < Math.min(4, json.length); j++) {
-                var topSanMove = json[j].san;
-                var topGame = new Chess(game.fen());
-                topGame.move(topSanMove);
-                var topFen = topGame.fen();
-
-                // Query the top pv, walk the pv and get its leaf score.
-                var topUrl = 'https://www.chessdb.cn/cdb.php?action=querypv&json=1&board=' + topFen;
-                $.get(topUrl, function(topData, topStatus) {
-                  if (topStatus == 'success' && topData.status == 'ok'){
-                    var game1 = new Chess(topGame.fen());
-                    var depth = topData.depth - 1;
-                    if (depth >= 0) {
-                      for (var i = 0; i < depth; i++) {
-                          game1.move(topData.pvSAN[i]);
-                      }
-                      var leafFen = game1.fen();
-                      var url1 = 'https://www.chessdb.cn/cdb.php?action=querypv&json=1&board=' + leafFen;
-                      $.get(url1, function(data1, status1) {
-                        if (status1 == 'success' && data1.status == 'ok'){
-                          score = data1.score;
-                          if (game.turn() !== game1.turn()) {
-                            score = -1*score;
-                          }
-                          var leafNodeInfo = "Score of " + "<b>"+json[numPv-1].san+"</b>" + " after " + (1+depth) + " plies: " + "<b>"+score+"</b>";
-                          document.getElementById(idStr).innerHTML = leafNodeInfo;
-                        }
-                      });
-                    }
-                  }
-                  else {
-                    document.getElementById(idStr).innerHTML = "Score of " + "<b>"+json[numPv-1].san+"</b>" + " after " + (1) + " plies: " + "<b>"+json[numPv-1].score+"</b>";
-                  }
-                });
-              }
-            }
-          });
-
-          // (2) Request PV of top 1 move and show it in PV box.
-          $.get(pvUrlGet, function(data, status) {
-            if (status !== 'success'){
-              msg = "Request failed! PV query of top 1 move is not successful.";
-              console.log(msg);
-              document.getElementById('top-move-pv').innerHTML = msg;
-            }
-            else if (data.status !== 'ok') {
-              if (!game.game_over()){
-                msg = "Request is successful but PV info is not available.";
-                console.log(msg);
-                document.getElementById('top-move-pv').innerHTML = msg;
-              }
-              else {
-                document.getElementById('top-move-pv').innerHTML = "Game over!";
-              }
-            }
-            else {
-              var sanPv = "" + data.pvSAN;
-              var pv = sanPv.replace(/,/g, ' ');
-              var line = "score: " + data.score + ", depth: " + data.depth + "<br>" + pv;
-              document.getElementById('top-move-pv').innerHTML = line;
-            }
-          });
-        }
-
-        // Alert user if game is over. Probe online book. Show the fen after
-        // each move. Update game result, fen and pgn boxes.
-        var updateStatus = function() {
-          var moveColor = 'White';
-          if (game.turn() === 'b')
-            moveColor = 'Black';
-
-          // checkmate?
-          if (game.in_checkmate() === true) {
-            if (moveColor === 'Black')
-              game.header('Result', '1-0');
-            else
-              game.header('Result', '0-1');
-          }
-          // draw?
-          else if (game.in_draw() === true)
-            game.header('Result', '1/2-1/2');
-
-          else {
-            game.header('Result', '*');
-          }
-
-          // Probe the ChessDB online opening book.
-          probe_book();
-
-          // Update the fen html PGN boxes
-          fenEl.html(game.fen());
-          pgnEl.html(game.pgn({ max_width: 79, newline_char: '<br />' }));
-
-        }; // End of updateStatus
-
-        $('#clearPosBoxBtn').on('click', function() {
-          document.getElementById('fenbox').value = '';
-        });
-
-        $('#inputEpdBtn').on('click', function() {
-          var pos = document.getElementById('fenbox').value;
-
-          // Remove empty space at left/right of fen/epd string. Position copied
-          // from Arena 3.5 chess GUI adds empty char at right of fen.
-          pos = pos.trim();
-          document.getElementById('fenbox').value = pos;
-
-          var ok = game.load(pos);
-          if (ok) {
-            setPgnGameHeader();
-            board.position(pos);
-            var s = document.getElementById("tbody");
-            s.innerHTML = '';
-
-            // Hightlight a1 square if turn is black otherwise a8
-            removeHighlights();
-            if (game.turn() === 'b')
-              addHighlights('a1', 'a1');
-            else
-              addHighlights('a8', 'a8');
-
-            updateStatus();
-          }
-          else {
-            console.log('FEN loading is not OK! FEN: ' + pos);
-            alert('The fen/epd that you set up is illegal!')
-          }
-        });
-
-        $('#flipBtn').on('click', function(){
-          board.flip(true);
-        });
-
-        $('#startBtn').on('click', function() {
-          board.start(false);
-          var startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-          board.position(startpos);
-          game.load(startpos);
-          document.getElementById('fenbox').value = ''
-          removeHighlights();
-          setPgnGameHeader();
-          updateStatus();
-        });
-
-        board = ChessBoard('board', cfg);
-        updateStatus();
-
-        // Undo last move
-        $('#undoBtn').on('click', function() {
-          game.undo();
-          board.position(game.fen());
-
-          // Remove square highlight of last move.
-          removeHighlights();
-
-          // Restore square highlight of last last move.
-          moveHistory = game.history({ verbose: true });
-          if (moveHistory.length >= 1) {
-            lastMove = moveHistory[moveHistory.length - 1];
-            addHighlights(lastMove.from, lastMove.to);
-          }
-
-          updateStatus();
-        });
-
-        function setPgnGameHeader(){
-          // Get Date for Date game header tag.
-          var today = new Date();
-          var dd = today.getDate();
-          var mm = today.getMonth() + 1; //January is 0!
-
-          var yyyy = today.getFullYear();
-          if (dd < 10)
-            dd = '0' + dd;
-          if (mm < 10)
-            mm = '0' + mm;
-          var today = yyyy + '.' + mm + '.' + dd;
-
-          // Add other header tags
-          game.header('Event', 'ChessDB book probing');
-          game.header('Site', 'Online');
-          game.header('Date', today);
-          game.header('Round', '-');
-          game.header('White', '?');
-          game.header('Black', '?');
-        };
-
-        // Download game in pgn format.
-        function download(filename, text) {
-          var element = document.createElement('a');
-          element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-          element.setAttribute('download', filename);
-
-          element.style.display = 'none';
-          document.body.appendChild(element);
-
-          element.click();
-
-          document.body.removeChild(element);
-        }
-
-        // Start file download.
-        document.getElementById("savePGNBtn").addEventListener("click", function(){
-          var text = game.pgn({ max_width: 79, newline_char: '\n' }) + "\n\n";
-          var filename = "mygame.pgn";
-          download(filename, text);
-        }, false);
-
-      }; // end init()
-
-      $(document).ready(init);
-    </script>
   </body>
 </html>

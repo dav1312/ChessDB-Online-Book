@@ -262,10 +262,6 @@ var updateStatus = function () {
   pgnEl.html(game.pgn({ max_width: 79, newline_char: "<br />" }));
 }; // End of updateStatus
 
-$("#clearPosBoxBtn").on("click", function () {
-  document.getElementById("inputFenBox").value = "";
-});
-
 $("#setupFenBtn").on("click", function () {
   var input = document.getElementById("inputFenBox").value;
 

@@ -9,6 +9,8 @@ var init = function() {
   var squareToHighlight = null;
   var squareClass = 'square-55d63';
 
+  const apiUrl = "https://www.chessdb.cn/cdb.php";
+
   setPgnGameHeader();
 
   function removeHighlights() {
@@ -67,11 +69,17 @@ var init = function() {
     onSnapEnd: onSnapEnd
   };
 
+  function requestQueue () {
+    $.get(`${apiUrl}?action=queue&board=${game.fen()}`);
+    console.log("FEN requested");
+    updateStatus();
+  };
+
   function displayScore (score) {
     if (score > 20000) return `M${30000 - score}`;
     if (score < -20000) return `-M${30000 + score}`;
     return score > 0 ? `+${(score / 100).toFixed(2)}` : (score / 100).toFixed(2)
-  }
+  };
 
   // Query leaf score of top X move.
   // Get the top move, push it, and query its PV. Walk the PV except the
@@ -92,7 +100,7 @@ var init = function() {
         var topFen = topGame.fen();
 
         // Query the top pv, walk the pv and get its leaf score.
-        var topUrl = 'https://www.chessdb.cn/cdb.php?action=querypv&json=1&board=' + topFen;
+        var topUrl = `${apiUrl}?action=querypv&json=1&board=${topFen}`;
         $.get(topUrl, function(topData, topStatus) {
           if (topStatus == 'success' && topData.status == 'ok'){
             var game1 = new Chess(topGame.fen());
@@ -102,7 +110,7 @@ var init = function() {
                   game1.move(topData.pvSAN[i]);
               }
               var leafFen = game1.fen();
-              var url1 = 'https://www.chessdb.cn/cdb.php?action=querypv&json=1&board=' + leafFen;
+              var url1 = `${apiUrl}?action=querypv&json=1&board=${leafFen}`;
               $.get(url1, function(data1, status1) {
                 if (status1 == 'success' && data1.status == 'ok'){
                   score = data1.score;
@@ -124,8 +132,8 @@ var init = function() {
   };
 
   var probe_book = function() {
-    var baseUrl = 'https://www.chessdb.cn/cdb.php?action=queryall&json=1&board='
-    var pvUrl = 'https://www.chessdb.cn/cdb.php?action=querypv&json=1&board='
+    var baseUrl = `${apiUrl}?action=queryall&json=1&board=`;
+    var pvUrl = `${apiUrl}?action=querypv&json=1&board=`;
 
     // Get the fen from current board position
     var userfen = game.fen();
@@ -305,6 +313,8 @@ var init = function() {
 
     updateStatus();
   });
+
+  $('#requestBtn').on('click', requestQueue);
 
   function setPgnGameHeader(){
     // Get Date for Date game header tag.

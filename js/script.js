@@ -1,27 +1,39 @@
-var board,
-  game = new Chess(),
-  fenEl = $("#fen");
-pgnEl = $("#pgn");
-var $board = $("#board");
-var squareToHighlight = null;
-var squareClass = "square-55d63";
+const fenEl = document.getElementById("fen"),
+  pgnEl = document.getElementById("pgn"),
 
-const apiUrl = "https://www.chessdb.cn/cdb.php";
+  inputFen = document.getElementById("inputFenBox"),
+  inputPgn = document.getElementById("inputPgnBox"),
 
-setPgnGameHeader();
+  setupFenBtn = document.getElementById("setupFenBtn"),
+  setupPgnBtn = document.getElementById("setupPgnBtn"),
 
-function removeHighlights() {
-  $board.find(`.${squareClass}`).removeClass("highlight-sq");
+  startBtn = document.getElementById("startBtn"),
+  undoBtn = document.getElementById("undoBtn"),
+  flipBtn = document.getElementById("flipBtn"),
+  requestBtn = document.getElementById("requestBtn"),
+  refreshBtn = document.getElementById("refreshBtn"),
+
+  topMovePv = document.getElementById("topMovePv"),
+  movesListTable  = document.getElementById("movesList"),
+  $board = document.getElementById("board"),
+  squareClass = "square-55d63",
+  apiUrl = "https://www.chessdb.cn/cdb.php";
+
+let board,
+  game = new Chess();
+
+const removeHighlights = () => {
+  $board.querySelectorAll('.highlight-sq').forEach(square => square.classList.remove("highlight-sq"));
 }
 
-function addHighlights(source, target) {
-  $board.find(`.square-${source}`).addClass("highlight-sq");
-  $board.find(`.square-${target}`).addClass("highlight-sq");
+const addHighlights = (source, target) => {
+  $board.querySelector(`.square-${source}`).classList.add("highlight-sq");
+  $board.querySelector(`.square-${target}`).classList.add("highlight-sq");
 }
 
 // Disable picking of pieces if the game is over. Also disable picking
 // of pieces for the side not to move.
-var onDragStart = function (source, piece, position, orientation) {
+const onDragStart = (source, piece) => {
   if (
     game.game_over() === true ||
     (game.turn() === "w" && piece.search(/^b/) !== -1) ||
@@ -31,9 +43,9 @@ var onDragStart = function (source, piece, position, orientation) {
   }
 };
 
-var onDrop = function (source, target) {
+const onDrop = (source, target) => {
   // see if the move is legal
-  var move = game.move({
+  const move = game.move({
     from: source,
     to: target,
     promotion: "q", // NOTE: always promote to a queen for example simplicity
@@ -49,26 +61,21 @@ var onDrop = function (source, target) {
   updateStatus();
 };
 
-function onMoveEnd() {
-  $board.find(`.square-${squareToHighlight}`).addClass("highlight-sq");
-}
-
 // update the board position after the piece snap
 // for castling, en passant, pawn promotion
-var onSnapEnd = function () {
+const onSnapEnd = () => {
   board.position(game.fen());
 };
 
-var cfg = {
+const cfg = {
   draggable: true,
   position: "start",
   onDragStart: onDragStart,
   onDrop: onDrop,
-  onMoveEnd: onMoveEnd,
   onSnapEnd: onSnapEnd,
 };
 
-function doMove(move) {
+const doMove = (move) => {
   game.move(move);
   board.position(game.fen());
 
@@ -77,7 +84,6 @@ function doMove(move) {
 
   // Restore square highlight of last last move.
   moveHistory = game.history({ verbose: true });
-  console.log(moveHistory);
   if (moveHistory.length >= 1) {
     lastMove = moveHistory[moveHistory.length - 1];
     addHighlights(lastMove.from, lastMove.to);
@@ -86,66 +92,65 @@ function doMove(move) {
   updateStatus();
 }
 
-function requestQueue() {
+const requestQueue = () => {
   $.get(`${apiUrl}?action=queue&board=${game.fen()}`);
   console.log("FEN requested");
   updateStatus();
 }
 
-function displayScore(score) {
+const displayScore = (score) => {
   if (game.turn() === "b") score *= -1;
   if (score > 20000) return `White wins in ${30000 - score}`;
   if (score < -20000) return `Black wins in ${30000 + score}`;
   return score > 0 ? `+${(score / 100).toFixed(2)}` : (score / 100).toFixed(2);
 }
 
-function countPieces(fen, attackers = false) {
+const countPieces = (fen, attackers = false) => {
   let board = fen.toLowerCase().split(" ")[0].split("");
   pieces = "qrbn";
   if (!attackers) pieces += "kp";
   const count =
     board.length -
     board.filter((fenPiece) => !pieces.includes(fenPiece)).length;
-  console.log(count);
   return count;
 }
 
 // Query leaf score of top X move.
 // Get the top move, push it, and query its PV. Walk the PV except the
 // last move and query its PV again to get its leaf node score.
-function queryLeaf(data, numPv) {
-  var idStr = `advance-pv${numPv}`;
-  var label = `Pv ${numPv}: `;
-  document.getElementById(idStr).innerHTML = label;
+const queryLeaf = (data, numPv) => {
+  const idStr = `advance-pv${numPv}`;
+  const label = `Pv ${numPv}: `;
+  document.getElementById(idStr).textContent = label;
   if (typeof data.moves === "undefined") {
     console.log("Query all, there is no book move!");
   } else {
-    var json = data.moves;
-    for (var j = numPv - 1; j < Math.min(numPv, json.length); j++) {
-      var topSanMove = json[j].san;
-      var topGame = new Chess(game.fen());
+    const json = data.moves;
+    for (let j = numPv - 1; j < Math.min(numPv, json.length); j++) {
+      const topSanMove = json[j].san;
+      const topGame = new Chess(game.fen());
       topGame.move(topSanMove);
-      var topFen = topGame.fen();
+      const topFen = topGame.fen();
 
       // Query the top pv, walk the pv and get its leaf score.
-      var topUrl = `${apiUrl}?action=querypv&json=1&board=${topFen}`;
+      const topUrl = `${apiUrl}?action=querypv&json=1&board=${topFen}`;
       $.get(topUrl, function (topData, topStatus) {
         if (topStatus == "success" && topData.status == "ok") {
-          var game1 = new Chess(topGame.fen());
-          var depth = topData.depth - 1;
+          const game1 = new Chess(topGame.fen());
+          const depth = topData.depth - 1;
           if (depth >= 0) {
-            for (var i = 0; i < depth; i++) {
+            for (let i = 0; i < depth; i++) {
               game1.move(topData.pvSAN[i]);
             }
-            var leafFen = game1.fen();
-            var url1 = `${apiUrl}?action=querypv&json=1&board=${leafFen}`;
+            const leafFen = game1.fen();
+            const url1 = `${apiUrl}?action=querypv&json=1&board=${leafFen}`;
             $.get(url1, function (data1, status1) {
               if (status1 == "success" && data1.status == "ok") {
                 score = data1.score;
                 if (game.turn() !== game1.turn()) {
                   score = -1 * score;
                 }
-                var leafNodeInfo = `Eval of <b>${
+                const leafNodeInfo = `Eval of <b>${
                   json[numPv - 1].san
                 }</b> after ${1 + depth} plies: <b>${displayScore(score)}</b>`;
                 document.getElementById(idStr).innerHTML = leafNodeInfo;
@@ -164,53 +169,50 @@ function queryLeaf(data, numPv) {
   }
 }
 
-var probe_book = function () {
-  var baseUrl = `${apiUrl}?action=queryall&json=1&board=`;
-  var pvUrl = `${apiUrl}?action=querypv&json=1&board=`;
+const probe_book = () => {
+  const baseUrl = `${apiUrl}?action=queryall&json=1&board=`;
+  const pvUrl = `${apiUrl}?action=querypv&json=1&board=`;
 
   // Get the fen from current board position
-  var userfen = game.fen();
-  var url = baseUrl + userfen;
-  var pvUrlGet = pvUrl + userfen;
+  const userfen = game.fen();
+  const url = baseUrl + userfen;
+  const pvUrlGet = pvUrl + userfen;
 
   // We will not make request if game is over.
   if (game.game_over()) {
-    var msg = "Game over!";
-    console.log(msg);
-    document.getElementById("top-move-pv").textContent = msg;
-    for (var i = 0; i < 4; i++) {
+    let msg = "Game over!";
+    topMovePv.textContent = msg;
+    for (let i = 0; i < 4; i++) {
       document.getElementById(`advance-pv${i + 1}`).textContent = `Pv${
         i + 1
       }: ${msg}`;
     }
-    $("#tbody tr").remove();
+    movesListTable.textContent = "";
     return;
   }
 
   // (1) Request query all
   $.get(url, function (data, status) {
     if (typeof data.moves === "undefined") {
-      $("#tbody tr").remove();
+      movesListTable.textContent = "";
     } else {
-      var json = data.moves;
+      const json = data.moves;
 
       // Create table for book probing results
       // Clear table first
-      $("#tbody tr").remove();
+      movesListTable.textContent = "";
 
-      var tbody = document.getElementById("tbody");
+      for (let i = 0; i < json.length; i++) {
+        const sanMove = json[i].san;
+        const score = json[i].score;
 
-      for (var i = 0; i < json.length; i++) {
-        var sanMove = json[i].san;
-        var score = json[i].score;
-
-        var tr = `
+        const tr = `
           <tr onclick="doMove('${sanMove}')">
             <td>${sanMove}</td>
             <td>${displayScore(score)}</td>
           </tr>
         `;
-        tbody.innerHTML += tr;
+        movesListTable.innerHTML += tr;
       }
     }
   });
@@ -225,15 +227,15 @@ var probe_book = function () {
   $.get(pvUrlGet, function (data, status) {
     if (status !== "success") {
       msg = "Request failed! PV query of top 1 move is not successful.";
-      console.log(msg);
-      document.getElementById("top-move-pv").textContent = msg;
+      console.warn(msg);
+      topMovePv.textContent = msg;
     } else if (data.status !== "ok") {
       if (!game.game_over()) {
         msg = "Request is successful but PV info is not available.";
         console.log(msg);
-        document.getElementById("top-move-pv").textContent = msg;
+        topMovePv.textContent = msg;
       } else {
-        document.getElementById("top-move-pv").textContent = "Game over!";
+        topMovePv.textContent = "Game over!";
       }
     } else {
       var sanPv = "" + data.pvSAN;
@@ -241,15 +243,15 @@ var probe_book = function () {
       var line = `Eval: ${displayScore(data.score)} Depth: ${
         data.depth
       }<br>${pv}`;
-      document.getElementById("top-move-pv").innerHTML = line;
+      topMovePv.innerHTML = line;
     }
   });
 };
 
 // Alert user if game is over. Probe online book. Show the fen after
 // each move. Update game result, fen and pgn boxes.
-var updateStatus = function () {
-  var moveColor = "White";
+const updateStatus = () => {
+  let moveColor = "White";
   if (game.turn() === "b") moveColor = "Black";
 
   // checkmate?
@@ -267,8 +269,8 @@ var updateStatus = function () {
   probe_book();
 
   // Update the fen html PGN boxes
-  fenEl.html(game.fen());
-  pgnEl.html(game.pgn({ max_width: 79, newline_char: "<br />" }));
+  fenEl.textContent = game.fen();
+  pgnEl.innerHTML = game.pgn({ max_width: 79, newline_char: "<br />" });
 
   if (countPieces(game.fen()) >= 10 && countPieces(game.fen(), true) >= 4) {
     document.getElementById("requestBtn").disabled = false;
@@ -277,19 +279,17 @@ var updateStatus = function () {
   }
 }; // End of updateStatus
 
-$("#setupFenBtn").on("click", function () {
-  var input = document.getElementById("inputFenBox").value;
-
+setupFenBtn.addEventListener("click", () => {
   // Remove empty space at left/right of fen/epd string. Position copied
   // from Arena 3.5 chess GUI adds empty char at right of fen.
-  input = input.trim();
-  document.getElementById("inputFenBox").value = input;
+  const input = inputFen.value.trim();
 
-  var ok = game.load(input);
-  if (ok) {
+  inputFen.value = input;
+
+  if (game.load(input)) {
     setPgnGameHeader();
     board.position(input);
-    document.getElementById("tbody").textContent = "";
+    document.getElementById("movesList").textContent = "";
 
     removeHighlights();
     updateStatus();
@@ -299,22 +299,19 @@ $("#setupFenBtn").on("click", function () {
   }
 });
 
-$("#setupPgnBtn").on("click", function () {
-  var input = document.getElementById("inputPgnBox").value;
-  console.log(input);
+setupPgnBtn.addEventListener("click", () => {
+  const input = inputPgn.value;
 
-  var ok = game.load_pgn(input);
-  if (ok) {
+  if (game.load_pgn(input)) {
     setPgnGameHeader();
     board.position(game.fen());
-    document.getElementById("tbody").textContent = "";
+    document.getElementById("movesList").textContent = "";
 
     // Remove square highlight of last move.
     removeHighlights();
 
     // Restore square highlight of last last move.
     moveHistory = game.history({ verbose: true });
-    console.log(moveHistory);
     if (moveHistory.length >= 1) {
       lastMove = moveHistory[moveHistory.length - 1];
       addHighlights(lastMove.from, lastMove.to);
@@ -326,16 +323,17 @@ $("#setupPgnBtn").on("click", function () {
   }
 });
 
-$("#flipBtn").on("click", function () {
+flipBtn.addEventListener("click", () => {
   board.flip(true);
 });
 
-$("#startBtn").on("click", function () {
+startBtn.addEventListener("click", () => {
   board.start(false);
-  var startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+  const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   board.position(startpos);
   game.load(startpos);
-  document.getElementById("inputFenBox").value = "";
+  inputFen.value = "";
+  inputPgn.value = "";
   removeHighlights();
   setPgnGameHeader();
   updateStatus();
@@ -345,7 +343,7 @@ board = ChessBoard("board", cfg);
 updateStatus();
 
 // Undo last move
-$("#undoBtn").on("click", function () {
+undoBtn.addEventListener("click", () => {
   game.undo();
   board.position(game.fen());
 
@@ -362,20 +360,22 @@ $("#undoBtn").on("click", function () {
   updateStatus();
 });
 
-$("#requestBtn").on("click", requestQueue);
+requestBtn.addEventListener("click", requestQueue);
 
-$("#refreshBtn").on("click", updateStatus);
+refreshBtn.addEventListener("click", updateStatus);
 
-function setPgnGameHeader() {
+const setPgnGameHeader = () => {
   // Get Date for Date game header tag.
-  var today = new Date();
-  var dd = today.getDate();
-  var mm = today.getMonth() + 1; //January is 0!
+  let today = new Date(),
+    dd = today.getDate(),
+    mm = today.getMonth() + 1; //January is 0!
 
-  var yyyy = today.getFullYear();
-  if (dd < 10) dd = "0" + dd;
-  if (mm < 10) mm = "0" + mm;
-  var today = yyyy + "." + mm + "." + dd;
+  const yyyy = today.getFullYear();
+
+  if (dd < 10) dd = `0${dd}`;
+  if (mm < 10) mm = `0${mm}`;
+
+  today = `${yyyy}.${mm}.${dd}`;
 
   // Add other header tags
   game.header("Event", "ChessDB book probing");
@@ -386,8 +386,10 @@ function setPgnGameHeader() {
   game.header("Black", "?");
 }
 
+setPgnGameHeader();
+
 // Download game in pgn format.
-function download(filename, text) {
+const download = (filename, text) => {
   var element = document.createElement("a");
   element.setAttribute(
     "href",
@@ -404,12 +406,8 @@ function download(filename, text) {
 }
 
 // Start file download.
-document.getElementById("savePGNBtn").addEventListener(
-  "click",
-  function () {
-    var text = game.pgn({ max_width: 79, newline_char: "\n" }) + "\n\n";
-    var filename = "mygame.pgn";
-    download(filename, text);
-  },
-  false
-);
+savePGNBtn.addEventListener("click", () => {
+  const text = game.pgn({ max_width: 79, newline_char: "\n" }) + "\n\n";
+  const filename = "mygame.pgn";
+  download(filename, text);
+});

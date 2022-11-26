@@ -9,10 +9,13 @@ const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   requestBtn = document.getElementById("requestBtn"),
   refreshBtn = document.getElementById("refreshBtn"),
   topMovePv = document.getElementById("topMovePv"),
+  stats = document.getElementById("stats"),
+  statsPositionCount = document.getElementById("statsPositionCount"),
+  statsQueue = document.getElementById("statsQueue"),
   movesListTable = document.getElementById("movesList"),
   $board = document.getElementById("board"),
   squareClass = "square-55d63",
-  apiUrl = "https://www.chessdb.cn/cdb.php";
+  apiUrl = "https://www.chessdb.cn/";
 
 let board,
   game = new Chess();
@@ -96,7 +99,7 @@ const doMove = (move) => {
 };
 
 const requestQueue = () => {
-  $.get(`${apiUrl}?action=queue&board=${game.fen()}`);
+  $.get(`${apiUrl}cdb.php?action=queue&board=${game.fen()}`);
   console.log("FEN requested");
   updateStatus();
 };
@@ -136,7 +139,7 @@ const queryLeaf = (data, numPv) => {
       const topFen = topGame.fen();
 
       // Query the top pv, walk the pv and get its leaf score.
-      const topUrl = `${apiUrl}?action=querypv&json=1&board=${topFen}`;
+      const topUrl = `${apiUrl}cdb.php?action=querypv&json=1&board=${topFen}`;
       $.get(topUrl, function (topData, topStatus) {
         if (topStatus == "success" && topData.status == "ok") {
           const game1 = new Chess(topGame.fen());
@@ -146,7 +149,7 @@ const queryLeaf = (data, numPv) => {
               game1.move(topData.pvSAN[i]);
             }
             const leafFen = game1.fen();
-            const url1 = `${apiUrl}?action=querypv&json=1&board=${leafFen}`;
+            const url1 = `${apiUrl}cdb.php?action=querypv&json=1&board=${leafFen}`;
             $.get(url1, function (data1, status1) {
               if (status1 == "success" && data1.status == "ok") {
                 score = data1.score;
@@ -173,8 +176,8 @@ const queryLeaf = (data, numPv) => {
 };
 
 const probe_book = () => {
-  const baseUrl = `${apiUrl}?action=queryall&json=1&board=`;
-  const pvUrl = `${apiUrl}?action=querypv&json=1&board=`;
+  const baseUrl = `${apiUrl}cdb.php?action=queryall&json=1&board=`;
+  const pvUrl = `${apiUrl}cdb.php?action=querypv&json=1&board=`;
 
   // Get the fen from current board position
   const userfen = game.fen();
@@ -251,6 +254,19 @@ const probe_book = () => {
   });
 };
 
+const get_stats = () => {
+  const url = `${apiUrl}/statsc.php?lang=1`;
+  const regex = new RegExp('([\\d,]+)', 'g')
+  $.get(url, function (data, status) {
+    if (status === "success") {
+      statsPositionCount.textContent = `Positions: ${regex.exec(data)[1]}`;
+      statsQueue.textContent = `Queue: ${regex.exec(data)[1]}`;
+    } else {
+      stats.textContent = "Request failed!";
+    }
+  });
+};
+
 // Alert user if game is over. Probe online book. Show the fen after
 // each move. Update game result, fen and pgn boxes.
 const updateStatus = () => {
@@ -286,6 +302,9 @@ const updateStatus = () => {
   countPieces(game.fen()) >= 10 && countPieces(game.fen(), true) >= 4
     ? (requestBtn.disabled = false)
     : (requestBtn.disabled = true);
+
+  // Get server stats
+  get_stats();
 }; // End of updateStatus
 
 setupFenBtn.addEventListener("click", () => {

@@ -107,25 +107,27 @@
 
         <div class="col-lg-3 mb-3">
           <div class="row">
+            <div class="col-12 mb-3">
+              <h5>Server Stats</h5>
+              <div id="stats">
+                <div id="statsPositionCount"></div>
+                <div id="statsQueue"></div>
+              </div>
+            </div>
+
+            <hr>
+
             <div class="col-12 col-sm-6 col-lg-12 mb-3">
               <h5>Top 4 Leaf Node Evals</h5>
-              <div>
-                <span id="advance-pv1"></span>
-              </div>
-              <div>
-                <span id="advance-pv2"></span>
-              </div>
-              <div>
-                <span id="advance-pv3"></span>
-              </div>
-              <div>
-                <span id="advance-pv4"></span>
-              </div>
+              <div id="advance-pv1"></div>
+              <div id="advance-pv2"></div>
+              <div id="advance-pv3"></div>
+              <div id="advance-pv4"></div>
             </div>
 
             <hr class="d-block d-sm-none d-lg-block">
 
-            <div class="col-12 col-sm-6 col-lg-12">
+            <div class="col-12 col-sm-6 col-lg-12 mb-3">
               <h5>PV of Top Move</h5>
               <div class="overflow-auto" id="topMovePv"></div>
             </div>

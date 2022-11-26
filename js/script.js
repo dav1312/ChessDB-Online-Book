@@ -31,6 +31,9 @@ const addHighlights = (source, target) => {
 // Disable picking of pieces if the game is over. Also disable picking
 // of pieces for the side not to move.
 const onDragStart = (source, piece) => {
+  // Prevent scroll when the user tries to move a piece
+  document.body.style.overflow = "hidden";
+
   if (
     game.game_over() === true ||
     (game.turn() === "w" && piece.search(/^b/) !== -1) ||
@@ -41,6 +44,9 @@ const onDragStart = (source, piece) => {
 };
 
 const onDrop = (source, target) => {
+  // Restore scroll
+  document.body.style.overflow = "";
+
   // see if the move is legal
   const move = game.move({
     from: source,

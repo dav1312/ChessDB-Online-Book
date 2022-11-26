@@ -59,7 +59,7 @@
 
     <div class="container">
       <div class="row">
-        <div class="col-md-6 col-lg-5 mb-3">
+        <div class="col-md-6 mb-3">
           <div class="text-center">
             <h5>ChessDB Opening Book</h5>
             <div id="board" class="m-auto w-100"></div>
@@ -89,34 +89,7 @@
 
         <hr class="d-block d-md-none">
 
-        <div class="col-md-6 col-lg-4 mb-3">
-          <div class="mb-3">
-            <h5>Top 4 Leaf Node Evals</h5>
-            <div>
-              <span id="advance-pv1"></span>
-            </div>
-            <div>
-              <span id="advance-pv2"></span>
-            </div>
-            <div>
-              <span id="advance-pv3"></span>
-            </div>
-            <div>
-              <span id="advance-pv4"></span>
-            </div>
-          </div>
-
-          <hr>
-
-          <div>
-            <h5>PV of Top Move</h5>
-            <div class="overflow-auto" id="topMovePv"></div>
-          </div>
-        </div>
-
-        <hr class="d-block d-lg-none">
-
-        <div class="col-lg-3 mb-3">
+        <div class="col-md-6 col-lg-3 mb-3">
           <h5>Book Probe Results</h5>
           <div style="height:50vh; min-height: 100px;" class="overflow-auto">
             <table class="table table-sm table-striped table-hover text-center mb-0">
@@ -128,6 +101,35 @@
               </thead>
               <tbody id="movesList"></tbody>
             </table>
+          </div>
+        </div>
+
+        <hr class="d-block d-lg-none">
+
+        <div class="col-lg-3 mb-3">
+          <div class="row">
+            <div class="col-12 col-sm-6 col-lg-12 mb-3">
+              <h5>Top 4 Leaf Node Evals</h5>
+              <div>
+                <span id="advance-pv1"></span>
+              </div>
+              <div>
+                <span id="advance-pv2"></span>
+              </div>
+              <div>
+                <span id="advance-pv3"></span>
+              </div>
+              <div>
+                <span id="advance-pv4"></span>
+              </div>
+            </div>
+
+            <hr class="d-block d-sm-none d-lg-block">
+
+            <div class="col-12 col-sm-6 col-lg-12">
+              <h5>PV of Top Move</h5>
+              <div class="overflow-auto" id="topMovePv"></div>
+            </div>
           </div>
         </div>
       </div>

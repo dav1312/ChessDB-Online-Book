@@ -79,6 +79,7 @@ const cfg = {
   onDragStart: onDragStart,
   onDrop: onDrop,
   onSnapEnd: onSnapEnd,
+  pieceTheme: 'img/chesspieces/cburnett/{piece}.svg',
 };
 
 const doMove = (move) => {

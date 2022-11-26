@@ -30,6 +30,14 @@ const addHighlights = (source, target) => {
   $board.querySelector(`.square-${target}`).classList.add("highlight-sq");
 };
 
+const addHighlightsFromHistory = () => {
+  moveHistory = game.history({ verbose: true });
+  if (moveHistory.length >= 1) {
+    lastMove = moveHistory[moveHistory.length - 1];
+    addHighlights(lastMove.from, lastMove.to);
+  }
+};
+
 // Disable picking of pieces if the game is over. Also disable picking
 // of pieces for the side not to move.
 const onDragStart = (source, piece) => {
@@ -85,16 +93,8 @@ const doMove = (move) => {
   game.move(move);
   board.position(game.fen());
 
-  // Remove square highlight of last move.
   removeHighlights();
-
-  // Restore square highlight of last last move.
-  moveHistory = game.history({ verbose: true });
-  if (moveHistory.length >= 1) {
-    lastMove = moveHistory[moveHistory.length - 1];
-    addHighlights(lastMove.from, lastMove.to);
-  }
-
+  addHighlightsFromHistory();
   updateStatus();
 };
 
@@ -334,15 +334,8 @@ setupPgnBtn.addEventListener("click", () => {
     board.position(game.fen());
     movesListTable.textContent = "";
 
-    // Remove square highlight of last move.
     removeHighlights();
-
-    // Restore square highlight of last last move.
-    moveHistory = game.history({ verbose: true });
-    if (moveHistory.length >= 1) {
-      lastMove = moveHistory[moveHistory.length - 1];
-      addHighlights(lastMove.from, lastMove.to);
-    }
+    addHighlightsFromHistory();
     updateStatus();
   } else {
     console.warn(`Invalid PGN\n${input}`);
@@ -372,16 +365,8 @@ undoBtn.addEventListener("click", () => {
   game.undo();
   board.position(game.fen());
 
-  // Remove square highlight of last move.
   removeHighlights();
-
-  // Restore square highlight of last last move.
-  moveHistory = game.history({ verbose: true });
-  if (moveHistory.length >= 1) {
-    lastMove = moveHistory[moveHistory.length - 1];
-    addHighlights(lastMove.from, lastMove.to);
-  }
-
+  addHighlightsFromHistory();
   updateStatus();
 });
 
@@ -390,7 +375,10 @@ requestBtn.addEventListener("click", requestQueue);
 refreshBtn.addEventListener("click", updateStatus);
 
 // Resize board on window resize
-window.addEventListener("resize", () => board.resize());
+window.addEventListener("resize", () => {
+  board.resize();
+  addHighlightsFromHistory();
+});
 
 // Download game in pgn format.
 const download = (filename, text) => {

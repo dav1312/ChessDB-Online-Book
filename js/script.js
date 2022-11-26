@@ -9,7 +9,6 @@ const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   requestBtn = document.getElementById("requestBtn"),
   refreshBtn = document.getElementById("refreshBtn"),
   topMovePv = document.getElementById("topMovePv"),
-  stats = document.getElementById("stats"),
   statsPositionCount = document.getElementById("statsPositionCount"),
   statsQueue = document.getElementById("statsQueue"),
   movesListTable = document.getElementById("movesList"),
@@ -260,10 +259,11 @@ const get_stats = () => {
   const regex = new RegExp('([\\d,]+)', 'g')
   $.get(url, function (data, status) {
     if (status === "success") {
-      statsPositionCount.textContent = `Positions: ${regex.exec(data)[1]}`;
-      statsQueue.textContent = `Queue: ${regex.exec(data)[1]}`;
+      statsPositionCount.textContent = regex.exec(data)[1];
+      statsQueue.textContent = regex.exec(data)[1];
     } else {
-      stats.textContent = "Request failed!";
+      statsPositionCount.textContent= "Request failed!";
+      statsQueue.textContent = "Request failed!";
     }
   });
 };

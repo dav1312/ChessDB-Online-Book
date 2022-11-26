@@ -31,7 +31,7 @@
   <body>
     <nav class="navbar navbar-expand-md navbar-dark bg-dark">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">ChessDB Online Chess Opening Book</a>
+        <a class="navbar-brand" href="">ChessDB Online Chess Opening Book</a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar2" aria-controls="offcanvasNavbar2">
           <span class="navbar-toggler-icon"></span>
@@ -43,7 +43,7 @@
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
           </div>
           <div class="offcanvas-body">
-            <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+            <ul class="navbar-nav justify-content-end flex-grow-1">
               <li class="nav-item">
                 <a class="nav-link" href="https://github.com/noobpwnftw/chessdb" target="_blank">ChessDB</a>
               </li>
@@ -59,7 +59,7 @@
 
     <div class="container">
       <div class="row">
-        <div class="col-md-6 col-lg-4 mb-3">
+        <div class="col-md-6 col-lg-5 mb-3">
           <div class="text-center">
             <h5>ChessDB Opening Book</h5>
             <div id="board" class="m-auto w-100"></div>
@@ -72,7 +72,8 @@
 
               <div class="input-group input-group-sm mb-3">
                 <button class="btn btn-sm btn-outline-secondary" type="button" id="setupPgnBtn">Setup</button>
-                <textarea class="form-control" placeholder="PGN" cols="2" id="inputPgnBox"></textarea>
+                <textarea class="form-control" placeholder="PGN" rows="4" id="inputPgnBox"></textarea>
+                <input class="btn btn-sm btn-outline-secondary" type="button" id="savePGNBtn" value="Save" />
               </div>
 
               <div>
@@ -82,8 +83,6 @@
                 <input class="btn btn-sm btn-outline-secondary mb-3" type="button" id="requestBtn" value="Analyze" />
                 <input class="btn btn-sm btn-outline-secondary mb-3" type="button" id="refreshBtn" value="Refresh" />
               </div>
-
-              <small id="fen" class="text-secondary"></small>
             </div>
           </div>
         </div>
@@ -117,7 +116,7 @@
 
         <hr class="d-block d-lg-none">
 
-        <div class="col-lg-4 mb-3">
+        <div class="col-lg-3 mb-3">
           <h5>Book Probe Results</h5>
           <div style="height:50vh; min-height: 100px;" class="overflow-auto">
             <table class="table table-sm table-striped table-hover text-center">
@@ -130,13 +129,6 @@
               <tbody id="movesList"></tbody>
             </table>
           </div>
-        </div>
-
-        <hr>
-
-        <div class="col-12 mb-3">
-          <h5>PGN <input class="btn btn-sm btn-outline-secondary" type="button" id="savePGNBtn" value="Save" /></h5>
-          <pre><code id="pgn"></code></pre>
         </div>
       </div>
     </div>

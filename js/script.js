@@ -1,6 +1,4 @@
 const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-  fenEl = document.getElementById("fen"),
-  pgnEl = document.getElementById("pgn"),
   inputFen = document.getElementById("inputFenBox"),
   inputPgn = document.getElementById("inputPgnBox"),
   setupFenBtn = document.getElementById("setupFenBtn"),
@@ -268,8 +266,8 @@ const updateStatus = () => {
   probe_book();
 
   // Update the fen html PGN boxes
-  fenEl.textContent = game.fen();
-  pgnEl.innerHTML = game.pgn({ max_width: 79, newline_char: "<br />" });
+  inputFen.value = game.fen();
+  inputPgn.value = game.pgn({ max_width: 70 });
 
   game.fen() === startpos
     ? (startBtn.disabled = true)
@@ -292,7 +290,6 @@ setupFenBtn.addEventListener("click", () => {
   inputFen.value = input;
 
   if (game.load(input)) {
-    setPgnGameHeader();
     board.position(input);
     movesListTable.textContent = "";
 
@@ -308,7 +305,6 @@ setupPgnBtn.addEventListener("click", () => {
   const input = inputPgn.value;
 
   if (game.load_pgn(input)) {
-    setPgnGameHeader();
     board.position(game.fen());
     movesListTable.textContent = "";
 
@@ -339,7 +335,6 @@ startBtn.addEventListener("click", () => {
   inputFen.value = "";
   inputPgn.value = "";
   removeHighlights();
-  setPgnGameHeader();
   updateStatus();
 });
 
@@ -368,29 +363,8 @@ requestBtn.addEventListener("click", requestQueue);
 
 refreshBtn.addEventListener("click", updateStatus);
 
-const setPgnGameHeader = () => {
-  // Get Date for Date game header tag.
-  let today = new Date(),
-    dd = today.getDate(),
-    mm = today.getMonth() + 1; //January is 0!
-
-  const yyyy = today.getFullYear();
-
-  if (dd < 10) dd = `0${dd}`;
-  if (mm < 10) mm = `0${mm}`;
-
-  today = `${yyyy}.${mm}.${dd}`;
-
-  // Add other header tags
-  game.header("Event", "ChessDB book probing");
-  game.header("Site", "Online");
-  game.header("Date", today);
-  game.header("Round", "-");
-  game.header("White", "?");
-  game.header("Black", "?");
-};
-
-setPgnGameHeader();
+// Resize board on window resize
+window.addEventListener("resize", () => board.resize());
 
 // Download game in pgn format.
 const download = (filename, text) => {

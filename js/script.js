@@ -86,7 +86,7 @@ const cfg = {
   onDragStart: onDragStart,
   onDrop: onDrop,
   onSnapEnd: onSnapEnd,
-  pieceTheme: 'img/chesspieces/cburnett/{piece}.svg',
+  pieceTheme: "img/chesspieces/cburnett/{piece}.svg",
 };
 
 const doMove = (move) => {
@@ -256,13 +256,13 @@ const probe_book = () => {
 
 const get_stats = () => {
   const url = `${apiUrl}/statsc.php?lang=1`;
-  const regex = new RegExp('([\\d,]+)', 'g')
+  const regex = new RegExp("([\\d,]+)", "g");
   $.get(url, function (data, status) {
     if (status === "success") {
       statsPositionCount.textContent = regex.exec(data)[1];
       statsQueue.textContent = regex.exec(data)[1];
     } else {
-      statsPositionCount.textContent= "Request failed!";
+      statsPositionCount.textContent = "Request failed!";
       statsQueue.textContent = "Request failed!";
     }
   });

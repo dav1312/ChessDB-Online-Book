@@ -61,12 +61,33 @@
 
   <div class="container">
     <div class="row">
-      <div class="col-md-6 mb-3">
-        <div class="text-center">
-          <h5>ChessDB Opening Book</h5>
-          <div id="board" class="m-auto w-100"></div>
+      <div class="col-12 col-lg-9">
+        <div class="row">
+          <div class="col-md-6 col-lg-8 order-first mb-3">
+            <div class="text-center">
+              <h5>ChessDB Opening Book</h5>
+              <div id="board" class="m-auto w-100"></div>
+            </div>
+          </div>
 
-          <div class="mt-2">
+          <hr class="d-block d-md-none order-2">
+
+          <div class="col-md-6 col-lg-4 order-2 order-md-1 mb-3">
+            <h5>Book Probe Results</h5>
+            <div id="bookProbeResults" style="min-height: 100px;" class="overflow-auto">
+              <table class="table table-sm table-striped table-hover text-center mb-0">
+                <thead>
+                  <tr>
+                    <th>Move</th>
+                    <th>Evaluation</th>
+                  </tr>
+                </thead>
+                <tbody id="movesList"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="col-12 col-lg-8 order-1 order-md-last text-center">
             <div class="input-group input-group-sm mb-3">
               <button class="btn btn-sm btn-outline-secondary" type="button" id="setupFenBtn">Setup</button>
               <input type="text" class="form-control" placeholder="FEN" id='inputFenBox' />
@@ -79,30 +100,13 @@
             </div>
 
             <div>
-              <input class="btn btn-sm btn-outline-secondary" type="button" id="startBtn" value="Startpos" />
-              <input class="btn btn-sm btn-outline-secondary" type="button" id="undoBtn" value="Undo" />
-              <input class="btn btn-sm btn-outline-secondary" type="button" id="flipBtn" value="Flip" />
-              <input class="btn btn-sm btn-outline-secondary" type="button" id="requestBtn" value="Analyze" />
-              <input class="btn btn-sm btn-outline-secondary" type="button" id="refreshBtn" value="Refresh" />
+              <input class="btn btn-sm btn-outline-secondary mb-3" type="button" id="startBtn" value="Startpos" />
+              <input class="btn btn-sm btn-outline-secondary mb-3" type="button" id="undoBtn" value="Undo" />
+              <input class="btn btn-sm btn-outline-secondary mb-3" type="button" id="flipBtn" value="Flip" />
+              <input class="btn btn-sm btn-outline-secondary mb-3" type="button" id="requestBtn" value="Analyze" />
+              <input class="btn btn-sm btn-outline-secondary mb-3" type="button" id="refreshBtn" value="Refresh" />
             </div>
           </div>
-        </div>
-      </div>
-
-      <hr class="d-block d-md-none">
-
-      <div class="col-md-6 col-lg-3 mb-3">
-        <h5>Book Probe Results</h5>
-        <div id="bookProbeResults" style="min-height: 100px;" class="overflow-auto">
-          <table class="table table-sm table-striped table-hover text-center mb-0">
-            <thead>
-              <tr>
-                <th>Move</th>
-                <th>Evaluation</th>
-              </tr>
-            </thead>
-            <tbody id="movesList"></tbody>
-          </table>
         </div>
       </div>
 

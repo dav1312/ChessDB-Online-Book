@@ -1,4 +1,5 @@
 const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  chessboardEl = document.getElementById("board"),
   inputFen = document.getElementById("inputFenBox"),
   inputPgn = document.getElementById("inputPgnBox"),
   setupFenBtn = document.getElementById("setupFenBtn"),
@@ -11,8 +12,8 @@ const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   topMovePv = document.getElementById("topMovePv"),
   statsPositionCount = document.getElementById("statsPositionCount"),
   statsQueue = document.getElementById("statsQueue"),
+  bookProbeResults = document.getElementById("bookProbeResults"),
   movesListTable = document.getElementById("movesList"),
-  $board = document.getElementById("board"),
   squareClass = "square-55d63",
   apiUrl = "https://www.chessdb.cn/";
 
@@ -20,14 +21,14 @@ let board,
   game = new Chess();
 
 const removeHighlights = () => {
-  $board
+  chessboardEl
     .querySelectorAll(".highlight-sq")
     .forEach((square) => square.classList.remove("highlight-sq"));
 };
 
 const addHighlights = (source, target) => {
-  $board.querySelector(`.square-${source}`).classList.add("highlight-sq");
-  $board.querySelector(`.square-${target}`).classList.add("highlight-sq");
+  chessboardEl.querySelector(`.square-${source}`).classList.add("highlight-sq");
+  chessboardEl.querySelector(`.square-${target}`).classList.add("highlight-sq");
 };
 
 const addHighlightsFromHistory = () => {
@@ -358,6 +359,7 @@ startBtn.addEventListener("click", () => {
 });
 
 board = ChessBoard("board", cfg);
+bookProbeResults.style.height = `${chessboardEl.clientHeight}px`;
 updateStatus();
 
 // Undo last move
@@ -377,6 +379,7 @@ refreshBtn.addEventListener("click", updateStatus);
 // Resize board on window resize
 window.addEventListener("resize", () => {
   board.resize();
+  bookProbeResults.style.height = `${chessboardEl.clientHeight}px`;
   addHighlightsFromHistory();
 });
 

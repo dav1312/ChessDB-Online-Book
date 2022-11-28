@@ -256,7 +256,7 @@ const probe_book = () => {
 };
 
 const get_stats = () => {
-  const url = `${apiUrl}/statsc.php?lang=1`;
+  const url = `${apiUrl}statsc.php?lang=1`;
   const regex = new RegExp("([\\d,]+)", "g");
   $.get(url, function (data, status) {
     if (status === "success") {

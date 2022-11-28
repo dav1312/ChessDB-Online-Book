@@ -53,6 +53,11 @@
   left: 2px;
 }
 
+:root,
+#bookProbeResults {
+  scrollbar-gutter: stable;
+}
+
 .highlight-sq {
   box-shadow: inset 0 0 0px 50px #ffff0080;
 }

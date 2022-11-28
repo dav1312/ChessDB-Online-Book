@@ -17,7 +17,11 @@ const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   squareClass = "square-55d63",
   highlightSquare = "highlight-sq",
   legalMoveSquare = "legalMove-sq",
-  apiUrl = "https://www.chessdb.cn/";
+  apiUrl = "https://www.chessdb.cn/",
+  apiQueryAll = `${apiUrl}cdb.php?action=queryall&json=1&board=`,
+  apiQueryPv = `${apiUrl}cdb.php?action=querypv&json=1&board=`,
+  apiQueue = `${apiUrl}cdb.php?action=queue&board=`,
+  apiStatsc = `${apiUrl}statsc.php?lang=1`;
 
 let board,
   game = new Chess();
@@ -122,7 +126,7 @@ const doMove = (move) => {
 };
 
 const requestQueue = () => {
-  $.get(`${apiUrl}cdb.php?action=queue&board=${game.fen()}`);
+  $.get(`${apiQueue}${game.fen()}`);
   console.log("FEN requested");
   updateStatus();
 };
@@ -162,7 +166,7 @@ const queryLeaf = (data, numPv) => {
       const topFen = topGame.fen();
 
       // Query the top pv, walk the pv and get its leaf score.
-      const topUrl = `${apiUrl}cdb.php?action=querypv&json=1&board=${topFen}`;
+      const topUrl = `${apiQueryPv}${topFen}`;
       $.get(topUrl, function (topData, topStatus) {
         if (topStatus == "success" && topData.status == "ok") {
           const game1 = new Chess(topGame.fen());
@@ -172,7 +176,7 @@ const queryLeaf = (data, numPv) => {
               game1.move(topData.pvSAN[i]);
             }
             const leafFen = game1.fen();
-            const url1 = `${apiUrl}cdb.php?action=querypv&json=1&board=${leafFen}`;
+            const url1 = `${apiQueryPv}${leafFen}`;
             $.get(url1, function (data1, status1) {
               if (status1 == "success" && data1.status == "ok") {
                 score = data1.score;
@@ -199,13 +203,10 @@ const queryLeaf = (data, numPv) => {
 };
 
 const probe_book = () => {
-  const baseUrl = `${apiUrl}cdb.php?action=queryall&json=1&board=`;
-  const pvUrl = `${apiUrl}cdb.php?action=querypv&json=1&board=`;
-
   // Get the fen from current board position
   const userfen = game.fen();
-  const url = baseUrl + userfen;
-  const pvUrlGet = pvUrl + userfen;
+  const url = apiQueryAll + userfen;
+  const pvUrlGet = apiQueryPv + userfen;
 
   // We will not make request if game is over.
   if (game.game_over()) {
@@ -278,9 +279,8 @@ const probe_book = () => {
 };
 
 const get_stats = () => {
-  const url = `${apiUrl}statsc.php?lang=1`;
   const regex = new RegExp("([\\d,]+)", "g");
-  $.get(url, function (data, status) {
+  $.get(apiStatsc, function (data, status) {
     if (status === "success") {
       statsPositionCount.textContent = regex.exec(data)[1];
       statsQueue.textContent = regex.exec(data)[1];

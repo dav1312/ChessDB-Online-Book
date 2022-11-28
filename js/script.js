@@ -15,20 +15,26 @@ const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   bookProbeResults = document.getElementById("bookProbeResults"),
   movesListTable = document.getElementById("movesList"),
   squareClass = "square-55d63",
+  highlightSquare = "highlight-sq",
+  legalMoveSquare = "legalMove-sq",
   apiUrl = "https://www.chessdb.cn/";
 
 let board,
   game = new Chess();
 
-const removeHighlights = () => {
+const removeCssClass = (cssClass) => {
   chessboardEl
-    .querySelectorAll(".highlight-sq")
-    .forEach((square) => square.classList.remove("highlight-sq"));
+    .querySelectorAll(`.${cssClass}`)
+    .forEach((square) => square.classList.remove(cssClass));
 };
 
 const addHighlights = (source, target) => {
-  chessboardEl.querySelector(`.square-${source}`).classList.add("highlight-sq");
-  chessboardEl.querySelector(`.square-${target}`).classList.add("highlight-sq");
+  chessboardEl
+    .querySelector(`.square-${source}`)
+    .classList.add(highlightSquare);
+  chessboardEl
+    .querySelector(`.square-${target}`)
+    .classList.add(highlightSquare);
 };
 
 const addHighlightsFromHistory = () => {
@@ -39,11 +45,25 @@ const addHighlightsFromHistory = () => {
   }
 };
 
+const addHighlightsLegal = (move) => {
+  chessboardEl.querySelector(`.square-${move}`).classList.add(legalMoveSquare);
+};
+
 // Disable picking of pieces if the game is over. Also disable picking
 // of pieces for the side not to move.
 const onDragStart = (source, piece) => {
   // Prevent scroll when the user tries to move a piece
   document.body.style.overflow = "hidden";
+
+  const moves = game.moves({
+    square: source,
+    verbose: true,
+  });
+
+  // highlight the possible squares for this piece
+  for (let i = 0; i < moves.length; i++) {
+    addHighlightsLegal(moves[i].to);
+  }
 
   if (
     game.game_over() === true ||
@@ -65,11 +85,13 @@ const onDrop = (source, target) => {
     promotion: "q", // NOTE: always promote to a queen for example simplicity
   });
 
+  removeCssClass(legalMoveSquare);
+
   // illegal move
   if (move === null) return "snapback";
 
   // Hight the last move made
-  removeHighlights();
+  removeCssClass(highlightSquare);
   addHighlights(source, target);
 
   updateStatus();
@@ -93,8 +115,8 @@ const cfg = {
 const doMove = (move) => {
   game.move(move);
   board.position(game.fen());
-
-  removeHighlights();
+  // Remove highlight again in case the user used the move table
+  removeCssClass(highlightSquare);
   addHighlightsFromHistory();
   updateStatus();
 };
@@ -320,7 +342,7 @@ setupFenBtn.addEventListener("click", () => {
     board.position(input);
     movesListTable.textContent = "";
 
-    removeHighlights();
+    removeCssClass(highlightSquare);
     updateStatus();
   } else {
     console.warn(`Invalid FEN\n${input}`);
@@ -335,7 +357,7 @@ setupPgnBtn.addEventListener("click", () => {
     board.position(game.fen());
     movesListTable.textContent = "";
 
-    removeHighlights();
+    removeCssClass(highlightSquare);
     addHighlightsFromHistory();
     updateStatus();
   } else {
@@ -354,7 +376,7 @@ startBtn.addEventListener("click", () => {
   game.load(startpos);
   inputFen.value = "";
   inputPgn.value = "";
-  removeHighlights();
+  removeCssClass(highlightSquare);
   updateStatus();
 });
 
@@ -367,7 +389,7 @@ undoBtn.addEventListener("click", () => {
   game.undo();
   board.position(game.fen());
 
-  removeHighlights();
+  removeCssClass(highlightSquare);
   addHighlightsFromHistory();
   updateStatus();
 });

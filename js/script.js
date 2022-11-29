@@ -17,6 +17,7 @@ const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   squareClass = "square-55d63",
   highlightSquare = "highlight-sq",
   legalMoveSquare = "legalMove-sq",
+  takesSquare = "takes-sq",
   apiUrl = "https://www.chessdb.cn/",
   apiQueryAll = `${apiUrl}cdb.php?action=queryall&json=1&board=`,
   apiQueryPv = `${apiUrl}cdb.php?action=querypv&json=1&board=`,
@@ -66,7 +67,8 @@ const onDragStart = (source, piece) => {
 
   // highlight the possible squares for this piece
   for (let i = 0; i < moves.length; i++) {
-    addCssClass(moves[i].to, legalMoveSquare);
+    const cssClass = moves[i].san.includes("x") ? takesSquare : legalMoveSquare;
+    addCssClass(moves[i].to, cssClass);
   }
 
   if (
@@ -90,11 +92,12 @@ const onDrop = (source, target) => {
   });
 
   removeCssClass(legalMoveSquare);
+  removeCssClass(takesSquare);
 
   // illegal move
   if (move === null) return "snapback";
 
-  // Hight the last move made
+  // Highlight the last move made
   removeCssClass(highlightSquare);
   addHighlights(source, target);
 

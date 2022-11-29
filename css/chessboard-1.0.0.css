@@ -67,6 +67,14 @@
   background-image: radial-gradient(#0000001a 25%, #0000 26%);
 }
 
+.takes-sq {
+  background-image: radial-gradient(
+    transparent 0%,
+    transparent 70%,
+    #0000001a 50%
+  );
+}
+
 #movesList tr {
   cursor: pointer;
 }

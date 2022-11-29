@@ -32,6 +32,10 @@ const removeCssClass = (cssClass) => {
     .forEach((square) => square.classList.remove(cssClass));
 };
 
+const addCssClass = (square, cssClass) => {
+  chessboardEl.querySelector(`.square-${square}`).classList.add(cssClass);
+};
+
 const addHighlights = (source, target) => {
   chessboardEl
     .querySelector(`.square-${source}`)
@@ -49,10 +53,6 @@ const addHighlightsFromHistory = () => {
   }
 };
 
-const addHighlightsLegal = (move) => {
-  chessboardEl.querySelector(`.square-${move}`).classList.add(legalMoveSquare);
-};
-
 // Disable picking of pieces if the game is over. Also disable picking
 // of pieces for the side not to move.
 const onDragStart = (source, piece) => {
@@ -66,7 +66,7 @@ const onDragStart = (source, piece) => {
 
   // highlight the possible squares for this piece
   for (let i = 0; i < moves.length; i++) {
-    addHighlightsLegal(moves[i].to);
+    addCssClass(moves[i].to, legalMoveSquare);
   }
 
   if (
@@ -298,12 +298,12 @@ const updateStatus = () => {
   if (game.turn() === "b") moveColor = "Black";
 
   // checkmate?
-  if (game.in_checkmate() === true) {
+  if (game.in_checkmate()) {
     if (moveColor === "Black") game.header("Result", "1-0");
     else game.header("Result", "0-1");
   }
   // draw?
-  else if (game.in_draw() === true) game.header("Result", "1/2-1/2");
+  else if (game.in_draw()) game.header("Result", "1/2-1/2");
   else {
     game.header("Result", "*");
   }

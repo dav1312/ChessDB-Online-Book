@@ -202,7 +202,7 @@ const queryLeaf = (data, numPv) => {
   }
 };
 
-const probe_book = () => {
+const probeBook = () => {
   // Get the fen from current board position
   const userfen = game.fen();
   const url = apiQueryAll + userfen;
@@ -278,7 +278,7 @@ const probe_book = () => {
   });
 };
 
-const get_stats = () => {
+const getStats = () => {
   const regex = new RegExp("([\\d,]+)", "g");
   $.get(apiStatsc, function (data, status) {
     if (status === "success") {
@@ -309,7 +309,7 @@ const updateStatus = () => {
   }
 
   // Probe the ChessDB online opening book.
-  probe_book();
+  probeBook();
 
   // Update the fen html PGN boxes
   inputFen.value = game.fen();
@@ -328,7 +328,7 @@ const updateStatus = () => {
     : (requestBtn.disabled = true);
 
   // Get server stats
-  get_stats();
+  getStats();
 }; // End of updateStatus
 
 setupFenBtn.addEventListener("click", () => {

@@ -280,9 +280,13 @@ const probeBook = () => {
       } else {
         const sanPv = "" + data.pvSAN;
         const pv = sanPv.replace(/,/g, " ");
-        const line = `Eval: ${displayScore(data.score)} Depth: ${
-          data.depth
-        }<br>${pv}`;
+        const line = `
+          <div>
+            Eval: <strong>${displayScore(data.score)}</strong>
+            Depth: <strong>${data.depth}</strong>
+          </div>
+          <div>${pv}</div>
+        `;
         topMovePv.innerHTML = line;
       }
     });

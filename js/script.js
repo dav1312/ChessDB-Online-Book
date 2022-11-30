@@ -10,10 +10,13 @@ const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   requestBtn = document.getElementById("requestBtn"),
   refreshBtn = document.getElementById("refreshBtn"),
   topMovePv = document.getElementById("topMovePv"),
+  topNodePvSwitch = document.getElementById("topNodePvSwitch"),
   statsPositionCount = document.getElementById("statsPositionCount"),
   statsQueue = document.getElementById("statsQueue"),
   bookProbeResults = document.getElementById("bookProbeResults"),
   movesListTable = document.getElementById("movesList"),
+  advancePvs = document.getElementById("advance-pvs"),
+  leafNodeEvalsSwitch = document.getElementById("leafNodeEvalsSwitch"),
   squareClass = "square-55d63",
   highlightSquare = "highlight-sq",
   legalMoveSquare = "legalMove-sq",
@@ -250,35 +253,40 @@ const probeBook = () => {
     }
   });
 
-  $.get(url, function (data, status) {
-    for (let leafCount = 1; leafCount <= 4; leafCount++) {
-      queryLeaf(data, leafCount);
-    }
-  });
+  // Query leaf nodes
+  if (leafNodeEvalsSwitch.checked) {
+    $.get(url, function (data, status) {
+      for (let leafCount = 1; leafCount <= 4; leafCount++) {
+        queryLeaf(data, leafCount);
+      }
+    });
+  }
 
   // (2) Request PV of top 1 move and show it in PV box.
-  $.get(pvUrlGet, function (data, status) {
-    if (status !== "success") {
-      msg = "Request failed! PV query of top 1 move is not successful.";
-      console.warn(msg);
-      topMovePv.textContent = msg;
-    } else if (data.status !== "ok") {
-      if (!game.game_over()) {
-        msg = "Request is successful but PV info is not available.";
-        console.log(msg);
+  if (topNodePvSwitch.checked) {
+    $.get(pvUrlGet, function (data, status) {
+      if (status !== "success") {
+        msg = "Request failed! PV query of top 1 move is not successful.";
+        console.warn(msg);
         topMovePv.textContent = msg;
+      } else if (data.status !== "ok") {
+        if (!game.game_over()) {
+          msg = "Request is successful but PV info is not available.";
+          console.log(msg);
+          topMovePv.textContent = msg;
+        } else {
+          topMovePv.textContent = "Game over!";
+        }
       } else {
-        topMovePv.textContent = "Game over!";
+        const sanPv = "" + data.pvSAN;
+        const pv = sanPv.replace(/,/g, " ");
+        const line = `Eval: ${displayScore(data.score)} Depth: ${
+          data.depth
+        }<br>${pv}`;
+        topMovePv.innerHTML = line;
       }
-    } else {
-      const sanPv = "" + data.pvSAN;
-      const pv = sanPv.replace(/,/g, " ");
-      const line = `Eval: ${displayScore(data.score)} Depth: ${
-        data.depth
-      }<br>${pv}`;
-      topMovePv.innerHTML = line;
-    }
-  });
+    });
+  }
 };
 
 const getStats = () => {
@@ -381,6 +389,24 @@ startBtn.addEventListener("click", () => {
   inputPgn.value = "";
   removeCssClass(highlightSquare);
   updateStatus();
+});
+
+leafNodeEvalsSwitch.addEventListener("change", () => {
+  if (leafNodeEvalsSwitch.checked) {
+    advancePvs.style.display = "";
+    updateStatus();
+  } else {
+    advancePvs.style.display = "none";
+  }
+});
+
+topNodePvSwitch.addEventListener("change", () => {
+  if (topNodePvSwitch.checked) {
+    topMovePv.style.display = "";
+    updateStatus();
+  } else {
+    topMovePv.style.display = "none";
+  }
 });
 
 board = ChessBoard("board", cfg);

@@ -25,7 +25,7 @@ const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   apiQueryAll = `${apiUrl}cdb.php?action=queryall&json=1&board=`,
   apiQueryPv = `${apiUrl}cdb.php?action=querypv&json=1&board=`,
   apiQueue = `${apiUrl}cdb.php?action=queue&board=`,
-  apiStatsc = `${apiUrl}statsc.php?lang=1`;
+  apiStatsc = `${apiUrl}statsc.php?json=1`;
 
 let board,
   game = new Chess();
@@ -290,11 +290,10 @@ const probeBook = () => {
 };
 
 const getStats = () => {
-  const regex = new RegExp("([\\d,]+)", "g");
   $.get(apiStatsc, function (data, status) {
     if (status === "success") {
-      statsPositionCount.textContent = regex.exec(data)[1];
-      statsQueue.textContent = regex.exec(data)[1];
+      statsPositionCount.textContent = data.positions.toLocaleString();
+      statsQueue.textContent = data.queue.scoring.toLocaleString();
     } else {
       statsPositionCount.textContent = "Request failed!";
       statsQueue.textContent = "Request failed!";

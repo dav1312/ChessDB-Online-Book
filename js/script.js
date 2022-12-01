@@ -416,10 +416,8 @@ setupFenBtn.addEventListener("click", () => {
 });
 
 setupPgnBtn.addEventListener("click", () => {
-  const input = inputPgn.value;
-
   try {
-    game.load_pgn(input);
+    game.load_pgn(inputPgn.value);
 
     board.position(game.fen());
     movesListTable.textContent = "";

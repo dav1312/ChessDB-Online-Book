@@ -359,7 +359,7 @@ setupFenBtn.addEventListener("click", () => {
   let fen = inputFen.value.trim();
 
   try {
-    let fields = fen.split(" ").filter((e) => e !== "");
+    const fields = fen.split(" ").filter((e) => e !== "");
 
     if (fields.length === 1) fields.push("w");
     if (fields.length === 2) fields.push("-");
@@ -371,7 +371,11 @@ setupFenBtn.addEventListener("click", () => {
       throw ["Invalid FEN: FEN has too many fields", fen];
     }
 
-    let countKings = fields[0].toLowerCase().split("k").length - 1
+    if (fields[0].length > 64 + 7) {
+      throw ["Invalid FEN: FEN has too many pieces", fen];
+    }
+
+    const countKings = fields[0].toLowerCase().split("k").length - 1;
     if (countKings !== 2) {
       throw ["Invalid FEN: Invalid amount of kings", fen];
     }

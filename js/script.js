@@ -346,21 +346,68 @@ const updateStatus = () => {
 }; // End of updateStatus
 
 setupFenBtn.addEventListener("click", () => {
+  // Try to fix the fen before loading it
+  // Field 1: position
+  // Field 2: active player
+  // Field 3: castling
+  // Field 4: en passant square
+  // Field 5: 50mr halfmoves
+  // Field 6: fullmoves
+
   // Remove empty space at left/right of fen/epd string. Position copied
   // from Arena 3.5 chess GUI adds empty char at right of fen.
-  const input = inputFen.value.trim();
+  let fen = inputFen.value.trim();
 
-  inputFen.value = input;
+  try {
+    let fields = fen.split(" ").filter((e) => e !== "");
 
-  if (game.load(input)) {
-    board.position(input);
-    movesListTable.textContent = "";
+    if (fields.length === 1) fields.push("w");
+    if (fields.length === 2) fields.push("-");
+    if (fields.length === 3) fields.push("-");
+    if (fields.length === 4) fields.push("0");
+    if (fields.length === 5) fields.push("1");
 
-    removeCssClass(highlightSquare);
-    updateStatus();
-  } else {
-    console.warn(`Invalid FEN\n${input}`);
-    alert("Invalid FEN");
+    if (fields.length !== 6) {
+      throw ["Invalid FEN: FEN has too many fields", fen];
+    }
+
+    let countKings = fields[0].toLowerCase().split("k").length - 1
+    if (countKings !== 2) {
+      throw ["Invalid FEN: Invalid amount of kings", fen];
+    }
+
+    fields[1] = fields[1].toLowerCase();
+    if (fields[1] !== "w" && fields[1] !== "b") {
+      throw ["Invalid FEN: Active player field", fen];
+    }
+    active = fields[1];
+
+    halfmove = parseInt(fields[4]);
+    if (Number.isNaN(halfmove)) {
+      throw ["Invalid FEN: Halfmoves field", fen];
+    }
+
+    fullmove = parseInt(fields[5]);
+    if (Number.isNaN(fullmove)) {
+      throw ["Invalid FEN: Fullmoves field", fen];
+    }
+
+    fen = fields.join(" ");
+
+    inputFen.value = fen;
+
+    if (game.load(fen)) {
+      board.position(fen);
+      movesListTable.textContent = "";
+
+      removeCssClass(highlightSquare);
+      updateStatus();
+    } else {
+      throw ["Invalid FEN", fen];
+    }
+  } catch (error) {
+    console.warn(`${error[0]}\n${error[1]}`);
+    alert(error[0]);
   }
 });
 

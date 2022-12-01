@@ -418,15 +418,17 @@ setupFenBtn.addEventListener("click", () => {
 setupPgnBtn.addEventListener("click", () => {
   const input = inputPgn.value;
 
-  if (game.load_pgn(input)) {
+  try {
+    game.load_pgn(input);
+
     board.position(game.fen());
     movesListTable.textContent = "";
 
     removeCssClass(highlightSquare);
     addHighlightsFromHistory();
     updateStatus();
-  } else {
-    console.warn(`Invalid PGN\n${input}`);
+  } catch (e) {
+    console.warn(e);
     alert("Invalid PGN");
   }
 });

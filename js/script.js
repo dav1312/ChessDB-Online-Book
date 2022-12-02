@@ -25,7 +25,8 @@ const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   apiQueryAll = `${apiUrl}cdb.php?action=queryall&json=1&board=`,
   apiQueryPv = `${apiUrl}cdb.php?action=querypv&json=1&board=`,
   apiQueue = `${apiUrl}cdb.php?action=queue&board=`,
-  apiStatsc = `${apiUrl}statsc.php?json=1`;
+  apiStatsc = `${apiUrl}statsc.php?json=1`,
+  arrowsColor = "rgb(0, 48, 136)";
 
 let board,
   game = new Chess();
@@ -36,7 +37,7 @@ const removeCssClass = (cssClass) => {
     .forEach((square) => square.classList.remove(cssClass));
 };
 
-const addCssClass = (square, cssClass) => {
+const addCssClassToSquare = (square, cssClass) => {
   chessboardEl.querySelector(`.square-${square}`).classList.add(cssClass);
 };
 
@@ -71,7 +72,7 @@ const onDragStart = (source, piece) => {
   // highlight the possible squares for this piece
   for (let i = 0; i < moves.length; i++) {
     const cssClass = moves[i].san.includes("x") ? takesSquare : legalMoveSquare;
-    addCssClass(moves[i].to, cssClass);
+    addCssClassToSquare(moves[i].to, cssClass);
   }
 
   if (
@@ -154,6 +155,86 @@ const countPieces = (fen, attackers = false) => {
   return count;
 };
 
+const coordinates = (uciMove) => {
+  return [
+    uciMove.charCodeAt(0) - 97,
+    uciMove[1] - 1,
+    uciMove.charCodeAt(2) - 97,
+    uciMove[3] - 1,
+  ];
+};
+
+const removeArrows = () => {
+  const arrowContainer = document.getElementById("arrowContainer");
+  if (arrowContainer != null) arrowContainer.remove();
+};
+
+const addArrowContainer = () => {
+  const newArrowContainer = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "svg"
+  );
+  newArrowContainer.setAttribute("viewBox", "0 0 100 100");
+  newArrowContainer.classList.add("arrow");
+  newArrowContainer.id = "arrowContainer";
+  chessboardEl.appendChild(newArrowContainer);
+  return newArrowContainer;
+};
+
+const line = (x1, y1, x2, y2) => {
+  const lineWidth = 2;
+  let dx = x2 - x1;
+  let dy = y2 - y1;
+  const length = Math.sqrt(dx * dx + dy * dy);
+  if (length > 0) {
+    dx /= length;
+    dy /= length;
+  }
+  const x3 = x1 + dx * (length - 5);
+  const y3 = y1 + dy * (length - 5);
+
+  return `
+    <line x1="${x1}" y1="${y1}" x2="${x3}" y2="${y3}"
+    opacity="0.4" stroke="${arrowsColor}" stroke-width="${lineWidth}"
+    marker-end="url(#arrowHead)" stroke-linecap="round" />
+  `;
+};
+
+const drawArrow = (uciMove) => {
+  const [moveStartX, moveStartY, moveEndX, moveEndY] = coordinates(uciMove);
+
+  // Center arrows in squares
+  const arrowStartX = moveStartX * (100 / 8) + (100 / 8 / 2);
+  const arrowStartY = 100 - moveStartY * (100 / 8) - (100 / 8 / 2);
+  const arrowEndX = moveEndX * (100 / 8) + (100 / 8 / 2);
+  const arrowEndY = 100 - moveEndY * (100 / 8) - (100 / 8 / 2);
+
+  const lineString = line(arrowStartX, arrowStartY, arrowEndX, arrowEndY);
+
+  let arrowContainer = document.getElementById("arrowContainer");
+  if (arrowContainer == null) arrowContainer = addArrowContainer();
+
+  const arrowHeight = 4,
+    arrowWidth = 6,
+    arrowMoveForward = 1.5;
+  arrowContainer.innerHTML = `
+    <defs>
+      <marker
+        id="arrowHead"
+        markerWidth="${arrowHeight}"
+        markerHeight="${arrowWidth}"
+        refX="${arrowMoveForward}"
+        refY="${arrowWidth / 2}"
+        orient="auto"
+        fill="${arrowsColor}"
+      >
+        <polygon points="0 0, ${arrowHeight} ${arrowWidth / 2}, 0 ${arrowWidth}" />
+      </marker>
+    </defs>
+    ${lineString}
+  `;
+};
+
 // Query leaf score of top X move.
 // Get the top move, push it, and query its PV. Walk the PV except the
 // last move and query its PV again to get its leaf node score.
@@ -209,6 +290,7 @@ const queryLeaf = (data, numPv) => {
 };
 
 const probeBook = () => {
+  removeArrows();
   // Get the fen from current board position
   const userfen = game.fen();
   const url = apiQueryAll + userfen;
@@ -237,6 +319,8 @@ const probeBook = () => {
       // Create table for book probing results
       // Clear table first
       movesListTable.textContent = "";
+
+      drawArrow(json[0].uci);
 
       for (let i = 0; i < json.length; i++) {
         const sanMove = json[i].san;

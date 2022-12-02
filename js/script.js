@@ -16,6 +16,7 @@ const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   bookProbeResults = document.getElementById("bookProbeResults"),
   movesListTable = document.getElementById("movesList"),
   advancePvs = document.getElementById("advance-pvs"),
+  amountAdvancedPvs = advancePvs.querySelectorAll("div").length,
   leafNodeEvalsSwitch = document.getElementById("leafNodeEvalsSwitch"),
   squareClass = "square-55d63",
   highlightSquare = "highlight-sq",
@@ -300,7 +301,7 @@ const probeBook = () => {
   if (game.game_over()) {
     let msg = "Game over!";
     topMovePv.textContent = msg;
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < amountAdvancedPvs; i++) {
       document.getElementById(`advance-pv${i + 1}`).textContent = `Pv${
         i + 1
       }: ${msg}`;
@@ -340,7 +341,7 @@ const probeBook = () => {
   // Query leaf nodes
   if (leafNodeEvalsSwitch.checked) {
     $.get(url, function (data, status) {
-      for (let leafCount = 1; leafCount <= 4; leafCount++) {
+      for (let leafCount = 1; leafCount <= amountAdvancedPvs; leafCount++) {
         queryLeaf(data, leafCount);
       }
     });

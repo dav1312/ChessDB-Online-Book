@@ -1,4 +1,5 @@
 const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  arrowSwitch = document.getElementById("arrowSwitch"),
   chessboardEl = document.getElementById("board"),
   inputFen = document.getElementById("inputFenBox"),
   inputPgn = document.getElementById("inputPgnBox"),
@@ -322,7 +323,7 @@ const probeBook = () => {
       movesListTable.textContent = "";
 
       // Draw the arrow of the first result
-      drawArrow(json[0].uci);
+      if (arrowSwitch.checked) drawArrow(json[0].uci);
 
       for (let i = 0; i < json.length; i++) {
         const sanMove = json[i].san;
@@ -529,6 +530,14 @@ startBtn.addEventListener("click", () => {
   inputPgn.value = "";
   removeCssClass(highlightSquare);
   updateStatus();
+});
+
+arrowSwitch.addEventListener("change", () => {
+  if (arrowSwitch.checked) {
+    updateStatus();
+  } else {
+    removeArrows();
+  }
 });
 
 leafNodeEvalsSwitch.addEventListener("change", () => {

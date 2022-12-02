@@ -294,8 +294,8 @@ const probeBook = () => {
   removeArrows();
   // Get the fen from current board position
   const userfen = game.fen();
-  const url = apiQueryAll + userfen;
-  const pvUrlGet = apiQueryPv + userfen;
+  const queryAllWithFen = apiQueryAll + userfen;
+  const queryPvWithFen = apiQueryPv + userfen;
 
   // We will not make request if game is over.
   if (game.game_over()) {
@@ -311,7 +311,7 @@ const probeBook = () => {
   }
 
   // (1) Request query all
-  $.get(url, function (data, status) {
+  $.get(queryAllWithFen, function (data, status) {
     if (typeof data.moves === "undefined") {
       movesListTable.textContent = "";
     } else {
@@ -321,6 +321,7 @@ const probeBook = () => {
       // Clear table first
       movesListTable.textContent = "";
 
+      // Draw the arrow of the first result
       drawArrow(json[0].uci);
 
       for (let i = 0; i < json.length; i++) {
@@ -340,7 +341,7 @@ const probeBook = () => {
 
   // Query leaf nodes
   if (leafNodeEvalsSwitch.checked) {
-    $.get(url, function (data, status) {
+    $.get(queryAllWithFen, function (data, status) {
       for (let leafCount = 1; leafCount <= amountAdvancedPvs; leafCount++) {
         queryLeaf(data, leafCount);
       }
@@ -349,7 +350,7 @@ const probeBook = () => {
 
   // (2) Request PV of top 1 move and show it in PV box.
   if (topNodePvSwitch.checked) {
-    $.get(pvUrlGet, function (data, status) {
+    $.get(queryPvWithFen, function (data, status) {
       if (status !== "success") {
         msg = "Request failed! PV query of top 1 move is not successful.";
         console.warn(msg);

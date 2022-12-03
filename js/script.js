@@ -194,6 +194,24 @@ const addArrowContainer = () => {
   newArrowContainer.setAttribute("viewBox", "0 0 100 100");
   newArrowContainer.classList.add("arrow");
   newArrowContainer.id = "arrowContainer";
+  const arrowHeight = 4,
+    arrowWidth = 6,
+    arrowMoveForward = 1.5;
+  newArrowContainer.innerHTML = `
+    <defs>
+      <marker
+        id="arrowHead"
+        markerWidth="${arrowHeight}"
+        markerHeight="${arrowWidth}"
+        refX="${arrowMoveForward}"
+        refY="${arrowWidth / 2}"
+        orient="auto"
+        fill="${arrowsColor}"
+      >
+        <polygon points="0 0, ${arrowHeight} ${arrowWidth / 2}, 0 ${arrowWidth}" />
+      </marker>
+    </defs>
+  `;
   chessboardEl.appendChild(newArrowContainer);
   return newArrowContainer;
 };
@@ -231,25 +249,7 @@ const drawArrow = (uciMove) => {
   let arrowContainer = document.getElementById("arrowContainer");
   if (arrowContainer == null) arrowContainer = addArrowContainer();
 
-  const arrowHeight = 4,
-    arrowWidth = 6,
-    arrowMoveForward = 1.5;
-  arrowContainer.innerHTML = `
-    <defs>
-      <marker
-        id="arrowHead"
-        markerWidth="${arrowHeight}"
-        markerHeight="${arrowWidth}"
-        refX="${arrowMoveForward}"
-        refY="${arrowWidth / 2}"
-        orient="auto"
-        fill="${arrowsColor}"
-      >
-        <polygon points="0 0, ${arrowHeight} ${arrowWidth / 2}, 0 ${arrowWidth}" />
-      </marker>
-    </defs>
-    ${lineString}
-  `;
+  arrowContainer.insertAdjacentHTML("beforeend", lineString);
 };
 
 // Query leaf score of top X move.
@@ -337,12 +337,12 @@ const probeBook = () => {
       // Clear table first
       movesListTable.textContent = "";
 
-      // Draw the arrow of the first result
-      if (arrowSwitch.checked) drawArrow(json[0].uci);
-
       for (let i = 0; i < json.length; i++) {
         const sanMove = json[i].san;
         const score = json[i].score;
+
+        // Draw an arrow for every move that has the same eval as the top move
+        if (arrowSwitch.checked && score == json[0].score) drawArrow(json[i].uci);
 
         const tr = `
           <tr onclick="doMove('${sanMove}')">

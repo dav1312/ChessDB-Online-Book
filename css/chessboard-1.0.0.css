@@ -85,3 +85,7 @@
   left: 0;
   pointer-events: none;
 }
+
+.rotate180 {
+  transform: rotate(180deg);
+}

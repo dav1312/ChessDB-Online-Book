@@ -37,15 +37,21 @@ let board,
   game = new Chess();
 
 if (leafNodeEvalsSwitchState !== null) {
-  leafNodeEvalsSwitchState == "true" ? leafNodeEvalsSwitch.checked = true : leafNodeEvalsSwitch.checked = false;
+  leafNodeEvalsSwitchState == "true"
+    ? leafNodeEvalsSwitch.checked = true
+    : leafNodeEvalsSwitch.checked = false;
 }
 
 if (topNodePvSwitchState !== null) {
-  topNodePvSwitchState == "true" ? topNodePvSwitch.checked = true : topNodePvSwitch.checked = false;
+  topNodePvSwitchState == "true"
+    ? topNodePvSwitch.checked = true
+    : topNodePvSwitch.checked = false;
 }
 
 if (arrowSwitchState !== null) {
-  arrowSwitchState == "true" ? arrowSwitch.checked = true : arrowSwitch.checked = false;
+  arrowSwitchState == "true"
+    ? arrowSwitch.checked = true
+    : arrowSwitch.checked = false;
 }
 
 const removeCssClass = (cssClass) => {
@@ -193,6 +199,7 @@ const addArrowContainer = () => {
   );
   newArrowContainer.setAttribute("viewBox", "0 0 100 100");
   newArrowContainer.classList.add("arrow");
+  if (board.orientation() === "black") newArrowContainer.classList.add("rotate180");
   newArrowContainer.id = "arrowContainer";
   const arrowHeight = 4,
     arrowWidth = 6,
@@ -535,6 +542,8 @@ setupPgnBtn.addEventListener("click", () => {
 
 flipBtn.addEventListener("click", () => {
   board.flip(true);
+  let arrowContainer = document.getElementById("arrowContainer");
+  if (arrowContainer !== null) arrowContainer.classList.toggle("rotate180");
 });
 
 startBtn.addEventListener("click", () => {

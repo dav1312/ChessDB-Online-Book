@@ -1,5 +1,6 @@
 const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   arrowSwitch = document.getElementById("arrowSwitch"),
+  arrowSwitchState = localStorage.getItem("arrowSwitchState"),
   chessboardEl = document.getElementById("board"),
   inputFen = document.getElementById("inputFenBox"),
   inputPgn = document.getElementById("inputPgnBox"),
@@ -12,6 +13,7 @@ const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   refreshBtn = document.getElementById("refreshBtn"),
   topMovePv = document.getElementById("topMovePv"),
   topNodePvSwitch = document.getElementById("topNodePvSwitch"),
+  topNodePvSwitchState = localStorage.getItem("topNodePvSwitchState"),
   statsPositionCount = document.getElementById("statsPositionCount"),
   statsQueue = document.getElementById("statsQueue"),
   bookProbeResults = document.getElementById("bookProbeResults"),
@@ -19,6 +21,7 @@ const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   advancePvs = document.getElementById("advance-pvs"),
   amountAdvancedPvs = advancePvs.querySelectorAll("div").length,
   leafNodeEvalsSwitch = document.getElementById("leafNodeEvalsSwitch"),
+  leafNodeEvalsSwitchState = localStorage.getItem("leafNodeEvalsSwitchState"),
   squareClass = "square-55d63",
   highlightSquare = "highlight-sq",
   legalMoveSquare = "legalMove-sq",
@@ -32,6 +35,18 @@ const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
 
 let board,
   game = new Chess();
+
+if (leafNodeEvalsSwitchState !== null) {
+  leafNodeEvalsSwitchState == "true" ? leafNodeEvalsSwitch.checked = true : leafNodeEvalsSwitch.checked = false;
+}
+
+if (topNodePvSwitchState !== null) {
+  topNodePvSwitchState == "true" ? topNodePvSwitch.checked = true : topNodePvSwitch.checked = false;
+}
+
+if (arrowSwitchState !== null) {
+  arrowSwitchState == "true" ? arrowSwitch.checked = true : arrowSwitch.checked = false;
+}
 
 const removeCssClass = (cssClass) => {
   chessboardEl
@@ -534,8 +549,10 @@ startBtn.addEventListener("click", () => {
 
 arrowSwitch.addEventListener("change", () => {
   if (arrowSwitch.checked) {
+    localStorage.setItem("arrowSwitchState", true);
     updateStatus();
   } else {
+    localStorage.setItem("arrowSwitchState", false);
     removeArrows();
   }
 });
@@ -543,18 +560,22 @@ arrowSwitch.addEventListener("change", () => {
 leafNodeEvalsSwitch.addEventListener("change", () => {
   if (leafNodeEvalsSwitch.checked) {
     advancePvs.style.display = "";
+    localStorage.setItem("leafNodeEvalsSwitchState", true);
     updateStatus();
   } else {
     advancePvs.style.display = "none";
+    localStorage.setItem("leafNodeEvalsSwitchState", false);
   }
 });
 
 topNodePvSwitch.addEventListener("change", () => {
   if (topNodePvSwitch.checked) {
     topMovePv.style.display = "";
+    localStorage.setItem("topNodePvSwitchState", true);
     updateStatus();
   } else {
     topMovePv.style.display = "none";
+    localStorage.setItem("topNodePvSwitchState", false);
   }
 });
 

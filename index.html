@@ -64,10 +64,16 @@
       <div class="col-12 col-lg-9">
         <div class="row">
           <div class="col-md-6 col-lg-8 order-first mb-3">
-            <div class="text-center">
-              <h5>ChessDB Opening Book</h5>
-              <div id="board" class="m-auto w-100"></div>
-            </div>
+            <h5>
+              <div class="align-items-center d-flex justify-content-between">
+                <span>ChessDB</span>
+                <div class="form-check form-switch">
+                  <label for="arrowSwitch">Top Move Arrow</label>
+                  <input class="form-check-input" type="checkbox" role="switch" id="arrowSwitch">
+                </div>
+              </div>
+            </h5>
+            <div id="board" class="m-auto w-100 position-relative"></div>
           </div>
 
           <hr class="d-block d-md-none order-2">
@@ -125,7 +131,7 @@
           <div class="col-12 col-sm-6 col-lg-12 mb-3">
             <h5>
               <div class="align-items-center d-flex justify-content-between">
-                <span>Top 4 Leaf Node Evals</span>
+                <label for="leafNodeEvalsSwitch">Top 4 Leaf Node Evals</label>
                 <div class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" role="switch" id="leafNodeEvalsSwitch" checked>
                 </div>
@@ -144,7 +150,7 @@
           <div class="col-12 col-sm-6 col-lg-12 mb-3">
             <h5>
               <div class="align-items-center d-flex justify-content-between">
-                <span>PV of Top Move</span>
+                <label for="topNodePvSwitch">PV of Top Move</label>
                 <div class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" role="switch" id="topNodePvSwitch" checked>
                 </div>

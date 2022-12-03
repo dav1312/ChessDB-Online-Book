@@ -1,4 +1,6 @@
 const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  arrowSwitch = document.getElementById("arrowSwitch"),
+  arrowSwitchState = localStorage.getItem("arrowSwitchState"),
   chessboardEl = document.getElementById("board"),
   inputFen = document.getElementById("inputFenBox"),
   inputPgn = document.getElementById("inputPgnBox"),
@@ -11,12 +13,15 @@ const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   refreshBtn = document.getElementById("refreshBtn"),
   topMovePv = document.getElementById("topMovePv"),
   topNodePvSwitch = document.getElementById("topNodePvSwitch"),
+  topNodePvSwitchState = localStorage.getItem("topNodePvSwitchState"),
   statsPositionCount = document.getElementById("statsPositionCount"),
   statsQueue = document.getElementById("statsQueue"),
   bookProbeResults = document.getElementById("bookProbeResults"),
   movesListTable = document.getElementById("movesList"),
   advancePvs = document.getElementById("advance-pvs"),
+  amountAdvancedPvs = advancePvs.querySelectorAll("div").length,
   leafNodeEvalsSwitch = document.getElementById("leafNodeEvalsSwitch"),
+  leafNodeEvalsSwitchState = localStorage.getItem("leafNodeEvalsSwitchState"),
   squareClass = "square-55d63",
   highlightSquare = "highlight-sq",
   legalMoveSquare = "legalMove-sq",
@@ -25,10 +30,23 @@ const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   apiQueryAll = `${apiUrl}cdb.php?action=queryall&json=1&board=`,
   apiQueryPv = `${apiUrl}cdb.php?action=querypv&json=1&board=`,
   apiQueue = `${apiUrl}cdb.php?action=queue&board=`,
-  apiStatsc = `${apiUrl}statsc.php?json=1`;
+  apiStatsc = `${apiUrl}statsc.php?json=1`,
+  arrowsColor = "rgb(0, 48, 136)";
 
 let board,
   game = new Chess();
+
+if (leafNodeEvalsSwitchState !== null) {
+  leafNodeEvalsSwitchState == "true" ? leafNodeEvalsSwitch.checked = true : leafNodeEvalsSwitch.checked = false;
+}
+
+if (topNodePvSwitchState !== null) {
+  topNodePvSwitchState == "true" ? topNodePvSwitch.checked = true : topNodePvSwitch.checked = false;
+}
+
+if (arrowSwitchState !== null) {
+  arrowSwitchState == "true" ? arrowSwitch.checked = true : arrowSwitch.checked = false;
+}
 
 const removeCssClass = (cssClass) => {
   chessboardEl
@@ -36,7 +54,7 @@ const removeCssClass = (cssClass) => {
     .forEach((square) => square.classList.remove(cssClass));
 };
 
-const addCssClass = (square, cssClass) => {
+const addCssClassToSquare = (square, cssClass) => {
   chessboardEl.querySelector(`.square-${square}`).classList.add(cssClass);
 };
 
@@ -71,7 +89,7 @@ const onDragStart = (source, piece) => {
   // highlight the possible squares for this piece
   for (let i = 0; i < moves.length; i++) {
     const cssClass = moves[i].san.includes("x") ? takesSquare : legalMoveSquare;
-    addCssClass(moves[i].to, cssClass);
+    addCssClassToSquare(moves[i].to, cssClass);
   }
 
   if (
@@ -154,6 +172,86 @@ const countPieces = (fen, attackers = false) => {
   return count;
 };
 
+const coordinates = (uciMove) => {
+  return [
+    uciMove.charCodeAt(0) - 97,
+    uciMove[1] - 1,
+    uciMove.charCodeAt(2) - 97,
+    uciMove[3] - 1,
+  ];
+};
+
+const removeArrows = () => {
+  const arrowContainer = document.getElementById("arrowContainer");
+  if (arrowContainer != null) arrowContainer.remove();
+};
+
+const addArrowContainer = () => {
+  const newArrowContainer = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "svg"
+  );
+  newArrowContainer.setAttribute("viewBox", "0 0 100 100");
+  newArrowContainer.classList.add("arrow");
+  newArrowContainer.id = "arrowContainer";
+  const arrowHeight = 4,
+    arrowWidth = 6,
+    arrowMoveForward = 1.5;
+  newArrowContainer.innerHTML = `
+    <defs>
+      <marker
+        id="arrowHead"
+        markerWidth="${arrowHeight}"
+        markerHeight="${arrowWidth}"
+        refX="${arrowMoveForward}"
+        refY="${arrowWidth / 2}"
+        orient="auto"
+        fill="${arrowsColor}"
+      >
+        <polygon points="0 0, ${arrowHeight} ${arrowWidth / 2}, 0 ${arrowWidth}" />
+      </marker>
+    </defs>
+  `;
+  chessboardEl.appendChild(newArrowContainer);
+  return newArrowContainer;
+};
+
+const line = (x1, y1, x2, y2) => {
+  const lineWidth = 2;
+  let dx = x2 - x1;
+  let dy = y2 - y1;
+  const length = Math.sqrt(dx * dx + dy * dy);
+  if (length > 0) {
+    dx /= length;
+    dy /= length;
+  }
+  const x3 = x1 + dx * (length - 5);
+  const y3 = y1 + dy * (length - 5);
+
+  return `
+    <line x1="${x1}" y1="${y1}" x2="${x3}" y2="${y3}"
+    opacity="0.4" stroke="${arrowsColor}" stroke-width="${lineWidth}"
+    marker-end="url(#arrowHead)" stroke-linecap="round" />
+  `;
+};
+
+const drawArrow = (uciMove) => {
+  const [moveStartX, moveStartY, moveEndX, moveEndY] = coordinates(uciMove);
+
+  // Center arrows in squares
+  const arrowStartX = moveStartX * (100 / 8) + (100 / 8 / 2);
+  const arrowStartY = 100 - moveStartY * (100 / 8) - (100 / 8 / 2);
+  const arrowEndX = moveEndX * (100 / 8) + (100 / 8 / 2);
+  const arrowEndY = 100 - moveEndY * (100 / 8) - (100 / 8 / 2);
+
+  const lineString = line(arrowStartX, arrowStartY, arrowEndX, arrowEndY);
+
+  let arrowContainer = document.getElementById("arrowContainer");
+  if (arrowContainer == null) arrowContainer = addArrowContainer();
+
+  arrowContainer.insertAdjacentHTML("beforeend", lineString);
+};
+
 // Query leaf score of top X move.
 // Get the top move, push it, and query its PV. Walk the PV except the
 // last move and query its PV again to get its leaf node score.
@@ -209,16 +307,17 @@ const queryLeaf = (data, numPv) => {
 };
 
 const probeBook = () => {
+  removeArrows();
   // Get the fen from current board position
   const userfen = game.fen();
-  const url = apiQueryAll + userfen;
-  const pvUrlGet = apiQueryPv + userfen;
+  const queryAllWithFen = apiQueryAll + userfen;
+  const queryPvWithFen = apiQueryPv + userfen;
 
   // We will not make request if game is over.
   if (game.game_over()) {
     let msg = "Game over!";
     topMovePv.textContent = msg;
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < amountAdvancedPvs; i++) {
       document.getElementById(`advance-pv${i + 1}`).textContent = `Pv${
         i + 1
       }: ${msg}`;
@@ -228,7 +327,7 @@ const probeBook = () => {
   }
 
   // (1) Request query all
-  $.get(url, function (data, status) {
+  $.get(queryAllWithFen, function (data, status) {
     if (typeof data.moves === "undefined") {
       movesListTable.textContent = "";
     } else {
@@ -241,6 +340,9 @@ const probeBook = () => {
       for (let i = 0; i < json.length; i++) {
         const sanMove = json[i].san;
         const score = json[i].score;
+
+        // Draw an arrow for every move that has the same eval as the top move
+        if (arrowSwitch.checked && score == json[0].score) drawArrow(json[i].uci);
 
         const tr = `
           <tr onclick="doMove('${sanMove}')">
@@ -255,8 +357,8 @@ const probeBook = () => {
 
   // Query leaf nodes
   if (leafNodeEvalsSwitch.checked) {
-    $.get(url, function (data, status) {
-      for (let leafCount = 1; leafCount <= 4; leafCount++) {
+    $.get(queryAllWithFen, function (data, status) {
+      for (let leafCount = 1; leafCount <= amountAdvancedPvs; leafCount++) {
         queryLeaf(data, leafCount);
       }
     });
@@ -264,7 +366,7 @@ const probeBook = () => {
 
   // (2) Request PV of top 1 move and show it in PV box.
   if (topNodePvSwitch.checked) {
-    $.get(pvUrlGet, function (data, status) {
+    $.get(queryPvWithFen, function (data, status) {
       if (status !== "success") {
         msg = "Request failed! PV query of top 1 move is not successful.";
         console.warn(msg);
@@ -445,21 +547,35 @@ startBtn.addEventListener("click", () => {
   updateStatus();
 });
 
+arrowSwitch.addEventListener("change", () => {
+  if (arrowSwitch.checked) {
+    localStorage.setItem("arrowSwitchState", true);
+    updateStatus();
+  } else {
+    localStorage.setItem("arrowSwitchState", false);
+    removeArrows();
+  }
+});
+
 leafNodeEvalsSwitch.addEventListener("change", () => {
   if (leafNodeEvalsSwitch.checked) {
     advancePvs.style.display = "";
+    localStorage.setItem("leafNodeEvalsSwitchState", true);
     updateStatus();
   } else {
     advancePvs.style.display = "none";
+    localStorage.setItem("leafNodeEvalsSwitchState", false);
   }
 });
 
 topNodePvSwitch.addEventListener("change", () => {
   if (topNodePvSwitch.checked) {
     topMovePv.style.display = "";
+    localStorage.setItem("topNodePvSwitchState", true);
     updateStatus();
   } else {
     topMovePv.style.display = "none";
+    localStorage.setItem("topNodePvSwitchState", false);
   }
 });
 

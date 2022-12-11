@@ -4,6 +4,7 @@ const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   chessboardEl = document.getElementById("board"),
   inputFen = document.getElementById("inputFenBox"),
   inputPgn = document.getElementById("inputPgnBox"),
+  screenshotBtn = document.getElementById("screenshotBtn"),
   setupFenBtn = document.getElementById("setupFenBtn"),
   setupPgnBtn = document.getElementById("setupPgnBtn"),
   startBtn = document.getElementById("startBtn"),
@@ -31,7 +32,8 @@ const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   apiQueryPv = `${apiUrl}cdb.php?action=querypv&json=1&board=`,
   apiQueue = `${apiUrl}cdb.php?action=queue&board=`,
   apiStatsc = `${apiUrl}statsc.php?json=1`,
-  arrowsColor = "rgb(0, 48, 136)";
+  arrowsColor = "rgb(0, 48, 136)",
+  lichessExport = "https://lichess1.org/export/fen.gif";
 
 let board,
   game = new Chess();
@@ -221,6 +223,16 @@ const addArrowContainer = () => {
   `;
   chessboardEl.appendChild(newArrowContainer);
   return newArrowContainer;
+};
+
+const updateScreenshotLink = () => {
+  const moveHistory = game.history({ verbose: true });
+  const lastMove =
+    moveHistory.length >= 1
+      ? moveHistory[moveHistory.length - 1].from +
+        moveHistory[moveHistory.length - 1].to
+      : "";
+  screenshotBtn.href = `${lichessExport}?fen=${game.fen()}&color=${board.orientation() === "black" ? "black" : "white"}&lastMove=${lastMove}`;
 };
 
 const line = (x1, y1, x2, y2) => {
@@ -417,26 +429,25 @@ const getStats = () => {
 // Alert user if game is over. Probe online book. Show the fen after
 // each move. Update game result, fen and pgn boxes.
 const updateStatus = () => {
-  let moveColor = "White";
-  if (game.turn() === "b") moveColor = "Black";
+  let moveColor = (game.turn() === "b") ? "black" : "white";
 
   // checkmate?
   if (game.in_checkmate()) {
-    if (moveColor === "Black") game.header("Result", "1-0");
-    else game.header("Result", "0-1");
+    moveColor === "black"
+      ? game.header("Result", "1-0")
+      : game.header("Result", "0-1");
   }
   // draw?
-  else if (game.in_draw()) game.header("Result", "1/2-1/2");
   else {
-    game.header("Result", "*");
+    game.in_draw()
+      ? game.header("Result", "1/2-1/2")
+      : game.header("Result", "*");
   }
-
-  // Probe the ChessDB online opening book.
-  probeBook();
 
   // Update the fen html PGN boxes
   inputFen.value = game.fen();
   inputPgn.value = game.pgn({ max_width: 70 });
+  updateScreenshotLink();
 
   game.fen() === startpos
     ? (startBtn.disabled = true)
@@ -449,6 +460,9 @@ const updateStatus = () => {
   countPieces(game.fen()) >= 10 && countPieces(game.fen(), true) >= 4
     ? (requestBtn.disabled = false)
     : (requestBtn.disabled = true);
+
+  // Probe the ChessDB online opening book.
+  probeBook();
 
   // Get server stats
   getStats();
@@ -542,6 +556,8 @@ setupPgnBtn.addEventListener("click", () => {
 
 flipBtn.addEventListener("click", () => {
   board.flip(true);
+  addHighlightsFromHistory();
+  updateScreenshotLink();
   let arrowContainer = document.getElementById("arrowContainer");
   if (arrowContainer !== null) arrowContainer.classList.toggle("rotate180");
 });

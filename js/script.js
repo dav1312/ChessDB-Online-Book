@@ -157,10 +157,27 @@ const doMove = (move) => {
   updateStatus();
 };
 
-const requestQueue = () => {
-  $.get(`${apiQueue}${game.fen()}`);
-  console.log("FEN requested");
-  updateStatus();
+// ChessDB queries
+const requestQueue = async () => {
+  try {
+    await fetch(`${apiQueue}${game.fen()}`);
+    console.log("FEN requested");
+    updateStatus();
+  } catch (error) {
+    console.error("requestQueue failed");
+    console.error(error);
+  }
+};
+
+const getStats = async () => {
+  try {
+    const data = await (await fetch(apiStatsc)).json();
+    statsPositionCount.textContent = data.positions.toLocaleString();
+    statsQueue.textContent = data.queue.scoring.toLocaleString();
+  } catch (error) {
+    console.error("getStats failed");
+    console.error(error);
+  }
 };
 
 const displayScore = (score) => {
@@ -306,19 +323,13 @@ const queryLeaf = (data, numPv) => {
                 if (game.turn() !== game1.turn()) {
                   score = -1 * score;
                 }
-                const leafNodeInfo = `Eval of <b>${
-                  json[numPv - 1].san
-                }</b> after ${1 + depth} plies: <b>${displayScore(score)}</b>`;
+                const leafNodeInfo = `Eval of <b>${json[numPv - 1].san}</b> after ${1 + depth} plies: <b>${displayScore(score)}</b>`;
                 document.getElementById(idStr).innerHTML = leafNodeInfo;
               }
             });
           }
         } else {
-          document.getElementById(idStr).innerHTML = `Eval of <b>${
-            json[numPv - 1].san
-          }</b> after ${1} plies: <b>${displayScore(
-            json[numPv - 1].score
-          )}</b>`;
+          document.getElementById(idStr).innerHTML = `Eval of <b>${json[numPv - 1].san}</b> after ${1} plies: <b>${displayScore(json[numPv - 1].score)}</b>`;
         }
       });
     }
@@ -337,9 +348,7 @@ const probeBook = () => {
     let msg = "Game over!";
     topMovePv.textContent = msg;
     for (let i = 0; i < amountAdvancedPvs; i++) {
-      document.getElementById(`advance-pv${i + 1}`).textContent = `Pv${
-        i + 1
-      }: ${msg}`;
+      document.getElementById(`advance-pv${i + 1}`).textContent = `Pv${i + 1}: ${msg}`;
     }
     movesListTable.textContent = "";
     return;
@@ -414,22 +423,10 @@ const probeBook = () => {
   }
 };
 
-const getStats = () => {
-  $.get(apiStatsc, function (data, status) {
-    if (status === "success") {
-      statsPositionCount.textContent = data.positions.toLocaleString();
-      statsQueue.textContent = data.queue.scoring.toLocaleString();
-    } else {
-      statsPositionCount.textContent = "Request failed!";
-      statsQueue.textContent = "Request failed!";
-    }
-  });
-};
-
 // Alert user if game is over. Probe online book. Show the fen after
 // each move. Update game result, fen and pgn boxes.
 const updateStatus = () => {
-  let moveColor = (game.turn() === "b") ? "black" : "white";
+  let moveColor = game.turn() === "b" ? "black" : "white";
 
   // checkmate?
   if (game.in_checkmate()) {

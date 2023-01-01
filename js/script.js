@@ -16,11 +16,12 @@ const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   topNodePvSwitch = document.getElementById("topNodePvSwitch"),
   topNodePvSwitchState = localStorage.getItem("topNodePvSwitchState"),
   statsPositionCount = document.getElementById("statsPositionCount"),
-  statsQueue = document.getElementById("statsQueue"),
+  statsScoring = document.getElementById("statsScoring"),
+  statsSieving = document.getElementById("statsSieving"),
   bookProbeResults = document.getElementById("bookProbeResults"),
   movesListTable = document.getElementById("movesList"),
   advancePvs = document.getElementById("advance-pvs"),
-  amountAdvancedPvs = advancePvs.querySelectorAll("div").length,
+  amountAdvancedPvs = 4,
   leafNodeEvalsSwitch = document.getElementById("leafNodeEvalsSwitch"),
   leafNodeEvalsSwitchState = localStorage.getItem("leafNodeEvalsSwitchState"),
   squareClass = "square-55d63",
@@ -34,6 +35,14 @@ const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   apiStatsc = `${apiUrl}statsc.php?json=1`,
   arrowsColor = "rgb(0, 48, 136)",
   lichessExport = "https://lichess1.org/export/fen.gif";
+
+document.getElementById("amountLeafNodeEvals").textContent = amountAdvancedPvs;
+
+for (let i = 1; i <= amountAdvancedPvs; i++) {
+  const advancedPvDiv = document.createElement("div");
+  advancedPvDiv.id = `advance-pv${i}`;
+  advancePvs.insertAdjacentElement("beforeend", advancedPvDiv);
+}
 
 let board,
   game = new Chess();
@@ -173,7 +182,8 @@ const getStats = async () => {
   try {
     const data = await (await fetch(apiStatsc)).json();
     statsPositionCount.textContent = data.positions.toLocaleString();
-    statsQueue.textContent = data.queue.scoring.toLocaleString();
+    statsScoring.textContent = data.queue.scoring.toLocaleString();
+    statsSieving.textContent = data.queue.sieving.toLocaleString();
   } catch (error) {
     console.error("getStats failed");
     console.error(error);

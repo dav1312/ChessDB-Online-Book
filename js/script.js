@@ -199,12 +199,17 @@ const displayScore = (score) => {
 
 const countPieces = (fen, attackers = false) => {
   let board = fen.toLowerCase().split(" ")[0].split("");
-  pieces = "qrbn";
+  let pieces = "qrbn";
   if (!attackers) pieces += "kp";
   const count =
     board.length -
     board.filter((fenPiece) => !pieces.includes(fenPiece)).length;
   return count;
+};
+
+const chessDbEnoughPieces = (fen) => {
+  const MIN_TOTAL = 10, MIN_NON_PAWN = 4;
+  return (countPieces(fen) >= MIN_TOTAL && countPieces(fen, true) >= MIN_NON_PAWN)
 };
 
 const coordinates = (uciMove) => {
@@ -464,7 +469,7 @@ const updateStatus = () => {
     ? (undoBtn.disabled = true)
     : (undoBtn.disabled = false);
 
-  countPieces(game.fen()) >= 10 && countPieces(game.fen(), true) >= 4
+  chessDbEnoughPieces(game.fen())
     ? (requestBtn.disabled = false)
     : (requestBtn.disabled = true);
 

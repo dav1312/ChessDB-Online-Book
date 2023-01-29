@@ -90,3 +90,7 @@
 .rotate180 {
   transform: rotate(180deg);
 }
+
+[data-bs-theme="dark"] {
+  color-scheme: dark;
+}

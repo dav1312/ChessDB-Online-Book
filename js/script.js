@@ -7,7 +7,7 @@ const startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   screenshotBtn = document.getElementById("screenshotBtn"),
   setupFenBtn = document.getElementById("setupFenBtn"),
   setupPgnBtn = document.getElementById("setupPgnBtn"),
-  startBtn = document.getElementById("startBtn"),
+  startposBtn = document.getElementById("startposBtn"),
   undoBtn = document.getElementById("undoBtn"),
   flipBtn = document.getElementById("flipBtn"),
   requestBtn = document.getElementById("requestBtn"),
@@ -49,20 +49,20 @@ let board,
 
 if (leafNodeEvalsSwitchState !== null) {
   leafNodeEvalsSwitchState == "true"
-    ? leafNodeEvalsSwitch.checked = true
-    : leafNodeEvalsSwitch.checked = false;
+    ? (leafNodeEvalsSwitch.checked = true)
+    : (leafNodeEvalsSwitch.checked = false);
 }
 
 if (topNodePvSwitchState !== null) {
   topNodePvSwitchState == "true"
-    ? topNodePvSwitch.checked = true
-    : topNodePvSwitch.checked = false;
+    ? (topNodePvSwitch.checked = true)
+    : (topNodePvSwitch.checked = false);
 }
 
 if (arrowSwitchState !== null) {
   arrowSwitchState == "true"
-    ? arrowSwitch.checked = true
-    : arrowSwitch.checked = false;
+    ? (arrowSwitch.checked = true)
+    : (arrowSwitch.checked = false);
 }
 
 const removeCssClass = (cssClass) => {
@@ -208,8 +208,11 @@ const countPieces = (fen, attackers = false) => {
 };
 
 const chessDbEnoughPieces = (fen) => {
-  const MIN_TOTAL = 10, MIN_NON_PAWN = 4;
-  return (countPieces(fen) >= MIN_TOTAL && countPieces(fen, true) >= MIN_NON_PAWN)
+  const MIN_TOTAL = 10,
+    MIN_NON_PAWN = 4;
+  return (
+    countPieces(fen) >= MIN_TOTAL && countPieces(fen, true) >= MIN_NON_PAWN
+  );
 };
 
 const coordinates = (uciMove) => {
@@ -233,7 +236,8 @@ const addArrowContainer = () => {
   );
   newArrowContainer.setAttribute("viewBox", "0 0 100 100");
   newArrowContainer.classList.add("arrow");
-  if (board.orientation() === "black") newArrowContainer.classList.add("rotate180");
+  if (board.orientation() === "black")
+    newArrowContainer.classList.add("rotate180");
   newArrowContainer.id = "arrowContainer";
   const arrowHeight = 4,
     arrowWidth = 6,
@@ -385,7 +389,8 @@ const probeBook = () => {
         const score = json[i].score;
 
         // Draw an arrow for every move that has the same eval as the top move
-        if (arrowSwitch.checked && score == json[0].score) drawArrow(json[i].uci);
+        if (arrowSwitch.checked && score == json[0].score)
+          drawArrow(json[i].uci);
 
         const tr = `
           <tr onclick="doMove('${sanMove}')">
@@ -456,20 +461,22 @@ const updateStatus = () => {
       : game.header("Result", "*");
   }
 
+  const gameFen = game.fen();
   // Update the fen html PGN boxes
-  inputFen.value = game.fen();
+  inputFen.value = gameFen;
+  history.replaceState(null, "", `?fen=${gameFen}`);
   inputPgn.value = game.pgn({ max_width: 70 });
   updateScreenshotLink();
 
-  game.fen() === startpos
-    ? (startBtn.disabled = true)
-    : (startBtn.disabled = false);
+  gameFen === startpos
+    ? (startposBtn.disabled = true)
+    : (startposBtn.disabled = false);
 
   game.history().length == 0
     ? (undoBtn.disabled = true)
     : (undoBtn.disabled = false);
 
-  chessDbEnoughPieces(game.fen())
+  chessDbEnoughPieces(gameFen)
     ? (requestBtn.disabled = false)
     : (requestBtn.disabled = true);
 
@@ -478,71 +485,84 @@ const updateStatus = () => {
 
   // Get server stats
   getStats();
-}; // End of updateStatus
+};
 
-setupFenBtn.addEventListener("click", () => {
-  // Try to fix the fen before loading it
+// Try to fix the fen
+const parseFen = (fen) => {
+  // Remove empty space at left/right of fen/epd string. Position copied
+  // from Arena 3.5 chess GUI adds empty char at right of fen.
+  fen = fen.trim();
+
   // Field 1: position
   // Field 2: active player
   // Field 3: castling
   // Field 4: en passant square
   // Field 5: 50mr halfmoves
   // Field 6: fullmoves
+  const fields = fen.split(" ").filter((e) => e !== "");
 
-  // Remove empty space at left/right of fen/epd string. Position copied
-  // from Arena 3.5 chess GUI adds empty char at right of fen.
-  let fen = inputFen.value.trim();
+  if (fields.length === 1) fields.push("w");
+  if (fields.length === 2) fields.push("-");
+  if (fields.length === 3) fields.push("-");
+  if (fields.length === 4) fields.push("0");
+  if (fields.length === 5) fields.push("1");
 
+  if (fields.length !== 6)
+    throw ["Invalid FEN: FEN has too many fields", fen];
+
+  if (fields[0].length > 64 + 7)
+    throw ["Invalid FEN: FEN has too many pieces", fen];
+
+  const countKings = fields[0].toLowerCase().split("k").length - 1;
+  if (countKings !== 2)
+    throw ["Invalid FEN: Invalid amount of kings", fen];
+
+  fields[1] = fields[1].toLowerCase();
+  if (fields[1] !== "w" && fields[1] !== "b")
+    throw ["Invalid FEN: Active player field", fen];
+
+  halfmove = parseInt(fields[4]);
+  if (Number.isNaN(halfmove))
+    throw ["Invalid FEN: Halfmoves field", fen];
+
+  fullmove = parseInt(fields[5]);
+  if (Number.isNaN(fullmove))
+    throw ["Invalid FEN: Fullmoves field", fen];
+
+  return fields.join(" ");
+};
+
+const updatePositionFromUrl = () => {
+  const urlObj = new URL(window.location.href);
+  const urlFenParam = urlObj.searchParams.get("fen");
+  if (urlFenParam !== null) {
+    try {
+      const parsedFen = parseFen(urlFenParam);
+      if (game.load(parsedFen)) {
+        board.position(parsedFen);
+        movesListTable.textContent = "";
+        removeCssClass(highlightSquare);
+        updateStatus();
+      } else {
+        throw ["Invalid FEN", parsedFen];
+      }
+    } catch (error) {
+      console.warn(`${error[0]}\n${error[1]}`);
+      alert(error[0]);
+    }
+  }
+};
+
+setupFenBtn.addEventListener("click", () => {
   try {
-    const fields = fen.split(" ").filter((e) => e !== "");
-
-    if (fields.length === 1) fields.push("w");
-    if (fields.length === 2) fields.push("-");
-    if (fields.length === 3) fields.push("-");
-    if (fields.length === 4) fields.push("0");
-    if (fields.length === 5) fields.push("1");
-
-    if (fields.length !== 6) {
-      throw ["Invalid FEN: FEN has too many fields", fen];
-    }
-
-    if (fields[0].length > 64 + 7) {
-      throw ["Invalid FEN: FEN has too many pieces", fen];
-    }
-
-    const countKings = fields[0].toLowerCase().split("k").length - 1;
-    if (countKings !== 2) {
-      throw ["Invalid FEN: Invalid amount of kings", fen];
-    }
-
-    fields[1] = fields[1].toLowerCase();
-    if (fields[1] !== "w" && fields[1] !== "b") {
-      throw ["Invalid FEN: Active player field", fen];
-    }
-    active = fields[1];
-
-    halfmove = parseInt(fields[4]);
-    if (Number.isNaN(halfmove)) {
-      throw ["Invalid FEN: Halfmoves field", fen];
-    }
-
-    fullmove = parseInt(fields[5]);
-    if (Number.isNaN(fullmove)) {
-      throw ["Invalid FEN: Fullmoves field", fen];
-    }
-
-    fen = fields.join(" ");
-
-    inputFen.value = fen;
-
-    if (game.load(fen)) {
-      board.position(fen);
+    const parsedFen = parseFen(inputFen.value);
+    if (game.load(parsedFen)) {
+      board.position(parsedFen);
       movesListTable.textContent = "";
-
       removeCssClass(highlightSquare);
       updateStatus();
     } else {
-      throw ["Invalid FEN", fen];
+      throw ["Invalid FEN", parsedFen];
     }
   } catch (error) {
     console.warn(`${error[0]}\n${error[1]}`);
@@ -574,12 +594,10 @@ flipBtn.addEventListener("click", () => {
   if (arrowContainer !== null) arrowContainer.classList.toggle("rotate180");
 });
 
-startBtn.addEventListener("click", () => {
+startposBtn.addEventListener("click", () => {
   board.start(false);
   board.position(startpos);
   game.load(startpos);
-  inputFen.value = "";
-  inputPgn.value = "";
   removeCssClass(highlightSquare);
   updateStatus();
 });
@@ -618,7 +636,6 @@ topNodePvSwitch.addEventListener("change", () => {
 
 board = ChessBoard("board", cfg);
 bookProbeResults.style.height = `${chessboardEl.clientHeight}px`;
-updateStatus();
 
 // Undo last move
 undoBtn.addEventListener("click", () => {
@@ -663,4 +680,9 @@ savePGNBtn.addEventListener("click", () => {
   const text = game.pgn({ max_width: 79, newline_char: "\n" }) + "\n\n";
   const filename = "mygame.pgn";
   download(filename, text);
+});
+
+window.addEventListener("load", () => {
+  updatePositionFromUrl();
+  updateStatus();
 });

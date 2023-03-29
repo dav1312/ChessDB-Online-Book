@@ -197,10 +197,9 @@ const displayScore = (score) => {
   return score > 0 ? `+${(score / 100).toFixed(2)}` : (score / 100).toFixed(2);
 };
 
-const countPieces = (fen, attackers = false) => {
+const countPieces = (fen) => {
   let board = fen.toLowerCase().split(" ")[0].split("");
-  let pieces = "qrbn";
-  if (!attackers) pieces += "kp";
+  let pieces = "qrbnkp";
   const count =
     board.length -
     board.filter((fenPiece) => !pieces.includes(fenPiece)).length;
@@ -208,8 +207,8 @@ const countPieces = (fen, attackers = false) => {
 };
 
 const chessDbEnoughPieces = (fen) => {
-  const MIN_TOTAL = 10, MIN_NON_PAWN = 4;
-  return (countPieces(fen) >= MIN_TOTAL && countPieces(fen, true) >= MIN_NON_PAWN)
+  const MIN_TOTAL = 7;
+  return countPieces(fen) > MIN_TOTAL;
 };
 
 const coordinates = (uciMove) => {
@@ -552,7 +551,7 @@ setupFenBtn.addEventListener("click", () => {
 
 setupPgnBtn.addEventListener("click", () => {
   try {
-    game.load_pgn(inputPgn.value);
+    game.load_pgn(inputPgn.value, { sloppy: true });
 
     board.position(game.fen());
     movesListTable.textContent = "";

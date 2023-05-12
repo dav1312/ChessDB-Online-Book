@@ -157,8 +157,9 @@ const cfg = {
   pieceTheme: "img/chesspieces/cburnett/{piece}.svg",
 };
 
-const doMove = (move) => {
-  game.move(move);
+const doMove = (moves) => {
+  movesArr = moves.split(',');
+  movesArr.forEach(move => game.move(move));
   board.position(game.fen());
   // Remove highlight again in case the user used the move table
   removeCssClass(highlightSquare);
@@ -389,7 +390,7 @@ const probeBook = () => {
         if (arrowSwitch.checked && score == json[0].score) drawArrow(json[i].uci);
 
         const tr = `
-          <tr onclick="doMove('${sanMove}')">
+          <tr class="pointer" onclick="doMove('${sanMove}')">
             <td>${sanMove}</td>
             <td>${displayScore(score)}</td>
           </tr>
@@ -424,14 +425,18 @@ const probeBook = () => {
           topMovePv.textContent = "Game over!";
         }
       } else {
-        const sanPv = "" + data.pvSAN;
-        const pv = sanPv.replace(/,/g, " ");
+        let pv = "";
+        for (let i = 0; i < data.pvSAN.length; i++) {
+          const prevElements = data.pvSAN.slice(0, i);
+          const currentElement = data.pvSAN[i];
+          pv += `<div class="pvMove pointer rounded-1" onclick="doMove('${[...prevElements, currentElement]}')">${currentElement}</div>`;
+        }
         const line = `
           <div>
             Eval: <strong>${displayScore(data.score)}</strong>
             Depth: <strong>${data.depth}</strong>
           </div>
-          <div>${pv}</div>
+          <div class="d-flex flex-wrap">${pv}</div>
         `;
         topMovePv.innerHTML = line;
       }

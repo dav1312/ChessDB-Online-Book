@@ -74,7 +74,7 @@
   );
 }
 
-#movesList tr {
+.pointer {
   cursor: pointer;
 }
 
@@ -93,4 +93,17 @@
 
 [data-bs-theme="dark"] {
   color-scheme: dark;
+}
+
+.pvMove {
+  padding: 0 5px 0 5px;
+}
+
+.pvMove:hover {
+  background-color: #0000001c;
+  transition: .1s;
+}
+
+[data-bs-theme="dark"] .pvMove:hover {
+  background-color: #ffffff30;
 }

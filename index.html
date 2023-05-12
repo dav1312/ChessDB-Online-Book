@@ -82,7 +82,7 @@
                 <span>ChessDB</span>
                 <div class="form-check form-switch">
                   <label for="arrowSwitch">Top Move Arrow</label>
-                  <input class="form-check-input" type="checkbox" role="switch" id="arrowSwitch">
+                  <input class="form-check-input" type="checkbox" role="switch" id="arrowSwitch" checked>
                 </div>
               </div>
             </h5>
@@ -161,11 +161,11 @@
               <div class="align-items-center d-flex justify-content-between">
                 <label for="leafNodeEvalsSwitch">Top <span id="amountLeafNodeEvals"></span> Leaf Node Evals</label>
                 <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" role="switch" id="leafNodeEvalsSwitch" checked>
+                  <input class="form-check-input" type="checkbox" role="switch" id="leafNodeEvalsSwitch">
                 </div>
               </div>
             </h5>
-            <div id="advance-pvs"></div>
+            <div id="advance-pvs" class="text-truncate overflow-x-auto"></div>
           </div>
 
           <hr class="d-block d-sm-none d-lg-block">

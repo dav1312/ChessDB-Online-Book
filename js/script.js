@@ -192,8 +192,10 @@ const getStats = async () => {
 
 const displayScore = (score) => {
   if (game.turn() === "b") score *= -1;
-  if (score > 20000) return `White wins in ${30000 - score}`;
-  if (score < -20000) return `Black wins in ${30000 + score}`;
+  if (score > 25000) return `+M${30000 - score}`;
+  if (score < -25000) return `-M${30000 + score}`;
+  if (score > 20000) return `White wins in ${25000 - score}`;
+  if (score < -20000) return `Black wins in ${25000 + score}`;
   return score > 0 ? `+${(score / 100).toFixed(2)}` : (score / 100).toFixed(2);
 };
 

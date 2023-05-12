@@ -486,7 +486,7 @@ const updateStatus = () => {
   getStats();
 }; // End of updateStatus
 
-setupFenBtn.addEventListener("click", () => {
+const loadFEN = (fen) => {
   // Try to fix the fen before loading it
   // Field 1: position
   // Field 2: active player
@@ -497,59 +497,74 @@ setupFenBtn.addEventListener("click", () => {
 
   // Remove empty space at left/right of fen/epd string. Position copied
   // from Arena 3.5 chess GUI adds empty char at right of fen.
-  let fen = inputFen.value.trim();
+  fen = fen.trim();
 
+  const fields = fen.split(" ").filter((e) => e !== "");
+
+  if (fields.length === 1) fields.push("w");
+  if (fields.length === 2) fields.push("-");
+  if (fields.length === 3) fields.push("-");
+  if (fields.length === 4) fields.push("0");
+  if (fields.length === 5) fields.push("1");
+
+  if (fields.length !== 6) {
+    throw ["Invalid FEN: FEN has too many fields", fen];
+  }
+
+  if (fields[0].length > 64 + 7) {
+    throw ["Invalid FEN: FEN has too many pieces", fen];
+  }
+
+  const countKings = fields[0].toLowerCase().split("k").length - 1;
+  if (countKings !== 2) {
+    throw ["Invalid FEN: Invalid amount of kings", fen];
+  }
+
+  fields[1] = fields[1].toLowerCase();
+  if (fields[1] !== "w" && fields[1] !== "b") {
+    throw ["Invalid FEN: Active player field", fen];
+  }
+  active = fields[1];
+
+  halfmove = parseInt(fields[4]);
+  if (Number.isNaN(halfmove)) {
+    throw ["Invalid FEN: Halfmoves field", fen];
+  }
+
+  fullmove = parseInt(fields[5]);
+  if (Number.isNaN(fullmove)) {
+    throw ["Invalid FEN: Fullmoves field", fen];
+  }
+
+  fen = fields.join(" ");
+
+  inputFen.value = fen;
+
+  if (game.load(fen)) {
+    board.position(fen);
+    movesListTable.textContent = "";
+
+    removeCssClass(highlightSquare);
+    updateStatus();
+  } else {
+    throw ["Invalid FEN", fen];
+  }
+};
+
+const loadPGN = (pgn) => {
+  game.load_pgn(pgn, { sloppy: true });
+
+  board.position(game.fen());
+  movesListTable.textContent = "";
+
+  removeCssClass(highlightSquare);
+  addHighlightsFromHistory();
+  updateStatus();
+};
+
+setupFenBtn.addEventListener("click", () => {
   try {
-    const fields = fen.split(" ").filter((e) => e !== "");
-
-    if (fields.length === 1) fields.push("w");
-    if (fields.length === 2) fields.push("-");
-    if (fields.length === 3) fields.push("-");
-    if (fields.length === 4) fields.push("0");
-    if (fields.length === 5) fields.push("1");
-
-    if (fields.length !== 6) {
-      throw ["Invalid FEN: FEN has too many fields", fen];
-    }
-
-    if (fields[0].length > 64 + 7) {
-      throw ["Invalid FEN: FEN has too many pieces", fen];
-    }
-
-    const countKings = fields[0].toLowerCase().split("k").length - 1;
-    if (countKings !== 2) {
-      throw ["Invalid FEN: Invalid amount of kings", fen];
-    }
-
-    fields[1] = fields[1].toLowerCase();
-    if (fields[1] !== "w" && fields[1] !== "b") {
-      throw ["Invalid FEN: Active player field", fen];
-    }
-    active = fields[1];
-
-    halfmove = parseInt(fields[4]);
-    if (Number.isNaN(halfmove)) {
-      throw ["Invalid FEN: Halfmoves field", fen];
-    }
-
-    fullmove = parseInt(fields[5]);
-    if (Number.isNaN(fullmove)) {
-      throw ["Invalid FEN: Fullmoves field", fen];
-    }
-
-    fen = fields.join(" ");
-
-    inputFen.value = fen;
-
-    if (game.load(fen)) {
-      board.position(fen);
-      movesListTable.textContent = "";
-
-      removeCssClass(highlightSquare);
-      updateStatus();
-    } else {
-      throw ["Invalid FEN", fen];
-    }
+    loadFEN(inputFen.value);
   } catch (error) {
     console.warn(`${error[0]}\n${error[1]}`);
     alert(error[0]);
@@ -557,19 +572,7 @@ setupFenBtn.addEventListener("click", () => {
 });
 
 setupPgnBtn.addEventListener("click", () => {
-  try {
-    game.load_pgn(inputPgn.value, { sloppy: true });
-
-    board.position(game.fen());
-    movesListTable.textContent = "";
-
-    removeCssClass(highlightSquare);
-    addHighlightsFromHistory();
-    updateStatus();
-  } catch (e) {
-    console.warn(e);
-    alert("Invalid PGN");
-  }
+  loadPGN(inputPgn.value);
 });
 
 flipBtn.addEventListener("click", () => {
@@ -645,6 +648,25 @@ window.addEventListener("resize", () => {
   board.resize();
   bookProbeResults.style.height = `${chessboardEl.clientHeight}px`;
   addHighlightsFromHistory();
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.ctrlKey && event.shiftKey && event.key === "V") {
+    navigator.clipboard.readText()
+      .then((text) => {
+        try {
+          loadFEN(text);
+        } catch {
+          loadPGN(text);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to read clipboard contents: ', err);
+        if (err.name === 'NotAllowedError') {
+          alert('Please grant permission to access the clipboard in your browser settings.');
+        }
+      });
+  }
 });
 
 // Download game in pgn format.

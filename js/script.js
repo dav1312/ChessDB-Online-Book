@@ -390,7 +390,7 @@ const probeBook = () => {
         if (arrowSwitch.checked && score == json[0].score) drawArrow(json[i].uci);
 
         const tr = `
-          <tr class="pointer" onclick="doMove('${sanMove}')">
+          <tr ${i == 0 ? "id='topMove'" : ""} class="pointer" title="Click ${i == 0 ? "or right arrow " : ""}to move" onclick="doMove('${sanMove}')">
             <td>${sanMove}</td>
             <td>${displayScore(score)}</td>
           </tr>
@@ -429,7 +429,7 @@ const probeBook = () => {
         for (let i = 0; i < data.pvSAN.length; i++) {
           const prevElements = data.pvSAN.slice(0, i);
           const currentElement = data.pvSAN[i];
-          pv += `<div class="pvMove pointer rounded-1" onclick="doMove('${[...prevElements, currentElement]}')">${currentElement}</div>`;
+          pv += `<div class="pvMove pointer rounded-1" title="Click ${i == 0 ? "or right arrow " : ""}to move" onclick="doMove('${[...prevElements, currentElement]}')">${currentElement}</div>`;
         }
         const line = `
           <div>
@@ -562,6 +562,15 @@ const loadPGN = (pgn) => {
   updateStatus();
 };
 
+const undoMove = () => {
+  game.undo();
+  board.position(game.fen());
+
+  removeCssClass(highlightSquare);
+  addHighlightsFromHistory();
+  updateStatus();
+};
+
 setupFenBtn.addEventListener("click", () => {
   try {
     loadFEN(inputFen.value);
@@ -630,14 +639,7 @@ bookProbeResults.style.height = `${chessboardEl.clientHeight}px`;
 updateStatus();
 
 // Undo last move
-undoBtn.addEventListener("click", () => {
-  game.undo();
-  board.position(game.fen());
-
-  removeCssClass(highlightSquare);
-  addHighlightsFromHistory();
-  updateStatus();
-});
+undoBtn.addEventListener("click", undoMove);
 
 requestBtn.addEventListener("click", requestQueue);
 
@@ -666,6 +668,10 @@ document.addEventListener("keydown", (event) => {
           alert('Please grant permission to access the clipboard in your browser settings.');
         }
       });
+  } else if (event.key === "ArrowRight") {
+    document.getElementById("topMove")?.click();
+  } else if (event.key === "ArrowLeft") {
+    undoMove();
   }
 });
 

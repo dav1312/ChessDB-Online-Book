@@ -172,7 +172,6 @@ const requestQueue = async () => {
   try {
     await fetch(`${apiQueue}${game.fen()}`);
     console.log("FEN requested");
-    updateStatus();
   } catch (error) {
     console.error("requestQueue failed");
     console.error(error);
@@ -376,7 +375,8 @@ const probeBook = () => {
   // (1) Request query all
   $.get(queryAllWithFen, function (data, status) {
     if (typeof data.moves === "undefined") {
-      movesListTable.textContent = "";
+      requestQueue();
+      movesListTable.innerHTML = '<tr><td colspan="2">This position is not in the database so it has been <strong>automatically queued</strong>!<br>You may try clicking the Refresh button in a few seconds to see if it has been analyzed.<td></tr>';
     } else {
       const json = data.moves;
 

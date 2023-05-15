@@ -192,8 +192,8 @@ const getStats = async () => {
 
 const displayScore = (score) => {
   if (game.turn() === "b") score *= -1;
-  if (score >  25000) return `+M${30000 - score}`;
-  if (score < -25000) return `-M${30000 + score}`;
+  if (score >  25000) return `+M${Math.ceil((30000 - score) / 2)}`;
+  if (score < -25000) return `-M${Math.ceil((30000 + score) / 2)}`;
   if (score >  20000) return `+DTZ ${25000 - score}`;
   if (score < -20000) return `-DTZ ${25000 + score}`;
   if (score >  15000) return `+DTZ ${20000 - score}`;
